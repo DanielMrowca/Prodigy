@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using HoneyComb.WebApi.Exceptions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Web;
 
 namespace HoneyComb.WebApi
@@ -28,9 +27,14 @@ namespace HoneyComb.WebApi
             return builder;
         }
 
+        public static IHoneyCombBuilder AddErrorHandler<T>(this IHoneyCombBuilder builder) where T : class, IExceptionToResponseMapper
+        {
+            builder.Services.AddTransient<IExceptionToResponseMapper, T>();
+            return builder;
+        }
+
         public static IApplicationBuilder UseEndpoints(this IApplicationBuilder appBuilder, Action<IEndpointBuilder> builder)
         {
-
             appBuilder.UseRouting();
             appBuilder.UseEndpoints(router => builder?.Invoke(new EndpointBuilder(router)));
             return appBuilder;
