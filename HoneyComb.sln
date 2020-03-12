@@ -11,7 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{3B24
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "samples\WebApi\WebApi.csproj", "{5271B924-C2DD-4C7A-BF15-4885DF73126B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.CQRS.Events", "src\HoneyComb.CQRS.Events\HoneyComb.CQRS.Events.csproj", "{D6209F7F-62B3-4746-BDE5-BE736D29DBF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.CQRS.Events", "src\HoneyComb.CQRS.Events\HoneyComb.CQRS.Events.csproj", "{D6209F7F-62B3-4746-BDE5-BE736D29DBF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.CQRS.Commands", "src\HoneyComb.CQRS.Commands\HoneyComb.CQRS.Commands.csproj", "{517026CF-79E8-4C44-AFA8-1B90695CCA72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{D6209F7F-62B3-4746-BDE5-BE736D29DBF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6209F7F-62B3-4746-BDE5-BE736D29DBF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6209F7F-62B3-4746-BDE5-BE736D29DBF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{517026CF-79E8-4C44-AFA8-1B90695CCA72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{517026CF-79E8-4C44-AFA8-1B90695CCA72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{517026CF-79E8-4C44-AFA8-1B90695CCA72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{517026CF-79E8-4C44-AFA8-1B90695CCA72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

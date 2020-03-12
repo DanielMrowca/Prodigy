@@ -55,42 +55,66 @@ namespace HoneyComb.WebApi
            Action<IEndpointConventionBuilder> endpoint = null, bool auth = false, string roles = null,
            params string[] policies)
         {
-            throw new NotImplementedException();
+            var builder = _routeBuilder.MapPost(path, ctx => context?.Invoke(ctx));
+            endpoint?.Invoke(builder);
+            ApplyAuthRolesAndPolicies(builder, auth, roles, policies);
+
+            return this;
         }
 
         public IEndpointBuilder Post<T>(string path, Func<T, HttpContext, Task> context = null,
             Action<IEndpointConventionBuilder> endpoint = null, bool auth = false, string roles = null,
             params string[] policies) where T : class
         {
-            throw new NotImplementedException();
+            var builder = _routeBuilder.MapPost(path, ctx => BuildRequestContext(ctx, context));
+            endpoint?.Invoke(builder);
+            ApplyAuthRolesAndPolicies(builder, auth, roles, policies);
+
+            return this;
         }
 
         public IEndpointBuilder Put(string path, Func<HttpContext, Task> context = null,
           Action<IEndpointConventionBuilder> endpoint = null, bool auth = false, string roles = null,
           params string[] policies)
         {
-            throw new NotImplementedException();
+            var builder = _routeBuilder.MapPut(path, ctx => context?.Invoke(ctx));
+            endpoint?.Invoke(builder);
+            ApplyAuthRolesAndPolicies(builder, auth, roles, policies);
+
+            return this;
         }
 
         public IEndpointBuilder Put<T>(string path, Func<T, HttpContext, Task> context = null,
             Action<IEndpointConventionBuilder> endpoint = null, bool auth = false, string roles = null,
             params string[] policies) where T : class
         {
-            throw new NotImplementedException();
+            var builder = _routeBuilder.MapPut(path, ctx => BuildRequestContext(ctx, context));
+            endpoint?.Invoke(builder);
+            ApplyAuthRolesAndPolicies(builder, auth, roles, policies);
+
+            return this;
         }
 
         public IEndpointBuilder Delete(string path, Func<HttpContext, Task> context = null,
             Action<IEndpointConventionBuilder> endpoint = null, bool auth = false, string roles = null,
             params string[] policies)
         {
-            throw new NotImplementedException();
+            var builder = _routeBuilder.MapDelete(path, ctx => context?.Invoke(ctx));
+            endpoint?.Invoke(builder);
+            ApplyAuthRolesAndPolicies(builder, auth, roles, policies);
+
+            return this;
         }
 
         public IEndpointBuilder Delete<T>(string path, Func<T, HttpContext, Task> context = null,
             Action<IEndpointConventionBuilder> endpoint = null, bool auth = false, string roles = null,
             params string[] policies) where T : class
         {
-            throw new NotImplementedException();
+            var builder = _routeBuilder.MapDelete(path, ctx => BuildRequestContext(ctx, context));
+            endpoint?.Invoke(builder);
+            ApplyAuthRolesAndPolicies(builder, auth, roles, policies);
+
+            return this;
         }
 
 
@@ -116,11 +140,21 @@ namespace HoneyComb.WebApi
             }
         }
 
+        private static async Task BuildRequestContext<T>(HttpContext httpContext, Func<T, HttpContext, Task> context = null)
+            where T : class
+        {
+            var request = await httpContext.ReadJsonAsync<T>();
+            if (request is null || context is null)
+                return;
+
+            await context.Invoke(request, httpContext);
+        }
+
         private static async Task BuildQueryContext<T>(HttpContext httpContext, Func<T, HttpContext, Task> context = null)
             where T : class
         {
             var request = httpContext.ReadQuery<T>();
-            if (request is null || context is null) 
+            if (request is null || context is null)
                 return;
 
             await context.Invoke(request, httpContext);
