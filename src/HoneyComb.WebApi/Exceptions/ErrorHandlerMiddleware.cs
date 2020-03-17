@@ -12,9 +12,11 @@ namespace HoneyComb.WebApi.Exceptions
     public class ErrorHandlerMiddleware : IMiddleware
     {
         private readonly ILogger<ErrorHandlerMiddleware> _logger;
+        private readonly IExceptionToResponseMapper _mapper;
 
-        public ErrorHandlerMiddleware(ILogger<ErrorHandlerMiddleware> logger)
+        public ErrorHandlerMiddleware(IExceptionToResponseMapper mapper, ILogger<ErrorHandlerMiddleware> logger)
         {
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -26,15 +28,16 @@ namespace HoneyComb.WebApi.Exceptions
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 await HandleErrorAsync(context, ex);
             }
         }
 
-        private async static Task HandleErrorAsync(HttpContext context, Exception exception)
+        private async Task HandleErrorAsync(HttpContext context, Exception exception)
         {
-            var exceptionReponse = new ExceptionResponse(exception, HttpStatusCode.BadRequest);
+            var exceptionReponse = _mapper.Map(exception);
 
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            context.Response.StatusCode = (int)exceptionReponse.StatusCode;
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(JsonConvert.SerializeObject(exceptionReponse));
         }

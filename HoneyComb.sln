@@ -13,7 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "samples\WebApi\We
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.CQRS.Events", "src\HoneyComb.CQRS.Events\HoneyComb.CQRS.Events.csproj", "{D6209F7F-62B3-4746-BDE5-BE736D29DBF6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.CQRS.Commands", "src\HoneyComb.CQRS.Commands\HoneyComb.CQRS.Commands.csproj", "{517026CF-79E8-4C44-AFA8-1B90695CCA72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.CQRS.Commands", "src\HoneyComb.CQRS.Commands\HoneyComb.CQRS.Commands.csproj", "{517026CF-79E8-4C44-AFA8-1B90695CCA72}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.WebApi.CQRS", "src\HoneyComb.WebApi.CQRS\HoneyComb.WebApi.CQRS.csproj", "{BE214F53-EDC2-49AA-AA62-163CAA425AF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.CQRS.Queries", "src\HoneyComb.CQRS.Queries\HoneyComb.CQRS.Queries.csproj", "{E605690D-5B95-4A3D-ABED-25515920B9B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.MongoDB", "src\HoneyComb.MongoDB\HoneyComb.MongoDB.csproj", "{0FC8C3F9-7D93-4700-A19B-E9A9B06479D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +47,18 @@ Global
 		{517026CF-79E8-4C44-AFA8-1B90695CCA72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{517026CF-79E8-4C44-AFA8-1B90695CCA72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{517026CF-79E8-4C44-AFA8-1B90695CCA72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE214F53-EDC2-49AA-AA62-163CAA425AF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE214F53-EDC2-49AA-AA62-163CAA425AF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE214F53-EDC2-49AA-AA62-163CAA425AF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE214F53-EDC2-49AA-AA62-163CAA425AF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E605690D-5B95-4A3D-ABED-25515920B9B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E605690D-5B95-4A3D-ABED-25515920B9B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E605690D-5B95-4A3D-ABED-25515920B9B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E605690D-5B95-4A3D-ABED-25515920B9B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FC8C3F9-7D93-4700-A19B-E9A9B06479D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FC8C3F9-7D93-4700-A19B-E9A9B06479D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FC8C3F9-7D93-4700-A19B-E9A9B06479D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FC8C3F9-7D93-4700-A19B-E9A9B06479D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

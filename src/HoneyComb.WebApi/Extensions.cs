@@ -1,15 +1,20 @@
 ﻿using HoneyComb.WebApi.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
+using Open.Serialization.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,15 +27,36 @@ namespace HoneyComb.WebApi
         private const string EmptyJsonObject = "{}";
         private const string JsonContentType = "application/json";
         private static readonly byte[] InvalidJsonRequestBytes = Encoding.UTF8.GetBytes("An invalid JSON was sent.");
+        private const string LocationHeader = "Location";
         private static bool _bindRequestFromRoute;
 
-        public static IHoneyCombBuilder AddWebApi(this IHoneyCombBuilder builder, Action<IMvcCoreBuilder> configureMvc = null)
+        public static IHoneyCombBuilder AddWebApi(this IHoneyCombBuilder builder, Action<IMvcCoreBuilder> configureMvc = null,
+            IJsonSerializer jsonSerializer = null)
         {
-            //TODO ADD required services for WebApi ;)
+            if (jsonSerializer is null)
+            {
+                var factory = new Open.Serialization.Json.Newtonsoft.JsonSerializerFactory(new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    Converters = { new StringEnumConverter(true) }
+                });
+                jsonSerializer = factory.GetSerializer();
+            }
+
+            builder.Services.AddSingleton(jsonSerializer);
 
             var mvcCoreBuilder = builder.Services
                .AddLogging()
                .AddMvcCore();
+
+
+            //mvcCoreBuilder.AddMvcOptions(o =>
+            //{
+            //    o.OutputFormatters.Clear();
+            //    o.OutputFormatters.Add(new JsonOutputFormatter(jsonSerializer));
+            //    o.InputFormatters.Clear();
+            //    o.InputFormatters.Add(new JsonInputFormatter(jsonSerializer));
+            //})
 
             configureMvc?.Invoke(mvcCoreBuilder);
 
@@ -39,14 +65,15 @@ namespace HoneyComb.WebApi
 
         public static IHoneyCombBuilder AddErrorHandler<T>(this IHoneyCombBuilder builder) where T : class, IExceptionToResponseMapper
         {
+            builder.Services.AddTransient<ErrorHandlerMiddleware>();
             builder.Services.AddTransient<IExceptionToResponseMapper, T>();
             return builder;
         }
 
-        public static IHoneyCombBuilder AddErrorHandler(this IHoneyCombBuilder builder)
+        public static IApplicationBuilder UseErrorHandler(this IApplicationBuilder builder)
         {
-            builder.Services.AddTransient<ErrorHandlerMiddleware>();
-            return builder;
+            builder.ApplicationServices.GetRequiredService<IExceptionToResponseMapper>();
+            return builder.UseMiddleware<ErrorHandlerMiddleware>();
         }
 
         public static IApplicationBuilder UseEndpoints(this IApplicationBuilder appBuilder, Action<IEndpointBuilder> builder)
@@ -55,9 +82,6 @@ namespace HoneyComb.WebApi
             appBuilder.UseEndpoints(router => builder?.Invoke(new EndpointBuilder(router)));
             return appBuilder;
         }
-
-        public static IApplicationBuilder UseErrorHandler(this IApplicationBuilder builder)
-            => builder.UseMiddleware<ErrorHandlerMiddleware>();
 
         public static T ReadQuery<T>(this HttpContext context) where T : class
         {
@@ -77,20 +101,20 @@ namespace HoneyComb.WebApi
                     values.TryAdd(key, queryString[key]);
                 }
             }
-
+            var serializer = context.RequestServices.GetRequiredService<IJsonSerializer>();
             if (values is null)
             {
-                return JsonConvert.DeserializeObject<T>(EmptyJsonObject);
+                return serializer.Deserialize<T>(EmptyJsonObject);
             }
 
-            var serialized = JsonConvert.SerializeObject(values.ToDictionary(k => k.Key, k => k.Value))
+            var serialized = serializer.Serialize(values.ToDictionary(k => k.Key, k => k.Value))
                 .Replace("\\\"", "\"")
                 .Replace("\"{", "{")
                 .Replace("}\"", "}")
                 .Replace("\"[", "[")
                 .Replace("]\"", "]");
 
-            return JsonConvert.DeserializeObject<T>(serialized);
+            return serializer.Deserialize<T>(serialized);
         }
 
         public static async Task<T> ReadJsonAsync<T>(this HttpContext httpContext)
@@ -122,8 +146,7 @@ namespace HoneyComb.WebApi
                             continue;
                         }
 
-                        var fieldValue = TypeDescriptor.GetConverter(field.FieldType)
-                            .ConvertFromInvariantString(value.ToString());
+                        var fieldValue = TypeDescriptor.GetConverter(field.FieldType).ConvertFromInvariantString(value.ToString());
                         field.SetValue(payload, fieldValue);
                     }
                 }
@@ -135,16 +158,20 @@ namespace HoneyComb.WebApi
                 }
 
                 httpContext.Response.StatusCode = 400;
-                httpContext.Response.WriteJsonAsync(results);
+                await httpContext.Response.WriteJsonAsync(results);
 
                 return default;
             }
             catch (Exception)
             {
-                httpContext.Response.StatusCode = 400;
-                await httpContext.Response.Body.WriteAsync(InvalidJsonRequestBytes, 0, InvalidJsonRequestBytes.Length);
+                throw;
 
-                return default;
+                //httpContext.RequestServices.GetRequiredService<>
+
+                //httpContext.Response.StatusCode = 400;
+                //await httpContext.Response.Body.WriteAsync(InvalidJsonRequestBytes, 0, InvalidJsonRequestBytes.Length);
+
+                //return default;
             }
         }
 
@@ -162,21 +189,110 @@ namespace HoneyComb.WebApi
             return new MemoryStream(bytes);
         }
 
-        public static void WriteJsonAsync<T>(this HttpResponse response, T value)
+        public static async Task WriteJsonAsync<T>(this HttpResponse response, T value)
         {
             response.ContentType = JsonContentType;
             var data = JsonConvert.SerializeObject(value);
-            response.Body = data.GetAsStream();
+            await response.WriteAsync(data);
+            //response.Body = data.GetAsStream();
 
             //var serializer = response.HttpContext.RequestServices.GetRequiredService<IJsonSerializer>();
             //await serializer.SerializeAsync(response.Body, value);
         }
+
+        public static Task Ok(this HttpResponse response, object data = null)
+        {
+            response.StatusCode = 200;
+            return data is null ? Task.CompletedTask : response.WriteJsonAsync(data);
+
+        }
+
+        public static Task Created(this HttpResponse response, string location = null, object data = null)
+        {
+            response.StatusCode = 201;
+            if (string.IsNullOrWhiteSpace(location))
+                return Task.CompletedTask;
+
+            if (!response.Headers.ContainsKey(LocationHeader))
+                response.Headers.Add(LocationHeader, location);
+
+            return data is null ? Task.CompletedTask : response.WriteJsonAsync(data);
+
+        }
+
+        public static Task BadRequest(this HttpResponse response)
+        {
+            response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return Task.CompletedTask;
+        }
+
+        public static Task Unauthorized(this HttpResponse response)
+        {
+            response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            return Task.CompletedTask;
+        }
+
+        public static Task Forbidden(this HttpResponse response)
+        {
+            response.StatusCode = (int)HttpStatusCode.Forbidden;
+            return Task.CompletedTask;
+        }
+
+        public static Task NotFound(this HttpResponse response)
+        {
+            response.StatusCode = (int)HttpStatusCode.NotFound;
+            return Task.CompletedTask;
+        }
+
+        public static Task InternalServerError(this HttpResponse response)
+        {
+            response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            return Task.CompletedTask;
+        }
+
+        public static Task Accepted(this HttpResponse response)
+        {
+            response.StatusCode = (int)HttpStatusCode.Accepted;
+            return Task.CompletedTask;
+        }
+
+        public static Task NoContent(this HttpResponse response)
+        {
+            response.StatusCode = (int)HttpStatusCode.NoContent;
+            return Task.CompletedTask;
+        }
+
+        public static Task MovedPermanently(this HttpResponse response, string url)
+        {
+            response.StatusCode = (int)HttpStatusCode.MovedPermanently;
+            if (!response.Headers.ContainsKey(LocationHeader))
+            {
+                response.Headers.Add(LocationHeader, url);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public static Task Redirect(this HttpResponse response, string url)
+        {
+            response.StatusCode = (int)HttpStatusCode.PermanentRedirect;
+            if (!response.Headers.ContainsKey(LocationHeader))
+            {
+                response.Headers.Add(LocationHeader, url);
+            }
+
+            return Task.CompletedTask;
+        }
+
+
 
         private static bool HasQueryString(this HttpRequest request)
            => request.Query.Any();
 
         private static bool HasRouteData(this HttpRequest request)
            => request.HttpContext.GetRouteData().Values.Any();
+
+
 
     }
 }
