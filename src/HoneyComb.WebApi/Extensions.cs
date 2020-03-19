@@ -28,7 +28,7 @@ namespace HoneyComb.WebApi
         private const string JsonContentType = "application/json";
         private static readonly byte[] InvalidJsonRequestBytes = Encoding.UTF8.GetBytes("An invalid JSON was sent.");
         private const string LocationHeader = "Location";
-        private static bool _bindRequestFromRoute;
+        private static bool _bindRequestFromRoute = true;
 
         public static IHoneyCombBuilder AddWebApi(this IHoneyCombBuilder builder, Action<IMvcCoreBuilder> configureMvc = null,
             IJsonSerializer jsonSerializer = null)
@@ -129,11 +129,20 @@ namespace HoneyComb.WebApi
 
             try
             {
+                T payload = default;
                 var request = httpContext.Request;
-                var payload = JsonConvert.DeserializeObject<T>(await request.Body.GetAsStringAsync());
-                //var payload = await httpContext.RequestServices.GetRequiredService<IJsonSerializer>().DeserializeAsync<T>(request.Body);
-                if (_bindRequestFromRoute && HasRouteData(request))
+                var serializer = httpContext.RequestServices.GetRequiredService<IJsonSerializer>();
+                var data = await request.Body.GetAsStringAsync();
+                if (string.IsNullOrWhiteSpace(data))
+                    payload = serializer.Deserialize<T>(EmptyJsonObject);
+
+                if (payload == null)
+                    payload = serializer.Deserialize<T>(data);
+                    //payload = await httpContext.RequestServices.GetRequiredService<IJsonSerializer>().DeserializeAsync<T>(request.Body);
+
+                if (_bindRequestFromRoute && HasRouteData(request)) 
                 {
+                    //Pobiera parametry z URL
                     var values = request.HttpContext.GetRouteData().Values;
                     foreach (var (key, value) in values)
                     {
@@ -152,7 +161,7 @@ namespace HoneyComb.WebApi
                 }
 
                 var results = new List<ValidationResult>();
-                if (Validator.TryValidateObject(payload, new ValidationContext(payload), results))
+                if (payload != null && Validator.TryValidateObject(payload, new ValidationContext(payload), results))
                 {
                     return payload;
                 }

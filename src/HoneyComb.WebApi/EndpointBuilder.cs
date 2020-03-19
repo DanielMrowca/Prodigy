@@ -110,7 +110,7 @@ namespace HoneyComb.WebApi
             Action<IEndpointConventionBuilder> endpoint = null, bool auth = false, string roles = null,
             params string[] policies) where T : class
         {
-            var builder = _routeBuilder.MapDelete(path, ctx => BuildRequestContext(ctx, context));
+            var builder = _routeBuilder.MapDelete(path, ctx => BuildQueryContext(ctx, context));
             endpoint?.Invoke(builder);
             ApplyAuthRolesAndPolicies(builder, auth, roles, policies);
 
