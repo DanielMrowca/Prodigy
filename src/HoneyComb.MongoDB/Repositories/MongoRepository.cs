@@ -47,5 +47,7 @@ namespace HoneyComb.MongoDB.Repositories
         public async Task DeleteAsync(TKey id)
             => await Collection.DeleteOneAsync(x => x.Id.Equals(id));
 
+        public async Task AddMultipleAsync(IEnumerable<TEntity> entities)
+            => await Collection.InsertManyAsync(entities);
     }
 }
