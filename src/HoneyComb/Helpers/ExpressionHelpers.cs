@@ -14,6 +14,11 @@ namespace HoneyComb.Helpers
             return ConvertImpl<Func<TFrom, bool>, Func<TTo, bool>>(from);
         }
 
+        public static Expression<Func<TTo, object>> ConvertExpression<TFrom, TTo>(this Expression<Func<TFrom, object>> from)
+        {
+            return ConvertImpl<Func<TFrom, object>, Func<TTo, object>>(from);
+        }
+
         private static Expression<TTo> ConvertImpl<TFrom, TTo>(Expression<TFrom> from)
           where TFrom : class
           where TTo : class

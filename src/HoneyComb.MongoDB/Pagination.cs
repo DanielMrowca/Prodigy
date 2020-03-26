@@ -31,8 +31,10 @@ namespace HoneyComb.MongoDB
             }
             var totalResults = await collection.CountAsync();
             var totalPages = (int)Math.Ceiling((decimal)totalResults / resultsPerPage);
-            var data = await collection.Limit(page, resultsPerPage).ToListAsync();
+            if (page > totalPages)
+                page = totalPages;
 
+            var data = await collection.Limit(page, resultsPerPage).ToListAsync();
             return PagedResult<T>.Create(data, page, resultsPerPage, totalPages, totalResults);
         }
 
