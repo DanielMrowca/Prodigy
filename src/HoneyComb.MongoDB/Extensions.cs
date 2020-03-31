@@ -32,7 +32,6 @@ namespace HoneyComb.MongoDB
         public static IHoneyCombBuilder AddMongo(this IHoneyCombBuilder builder, string settingsSection)
         {
             var options = builder.GetSettings<MongoDbOptions>(settingsSection);
-
             return builder.AddMongo(options);
         }
 
