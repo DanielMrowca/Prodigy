@@ -29,6 +29,13 @@ namespace HoneyComb.MongoDB
             return builder;
         }
 
+        public static IHoneyCombBuilder AddMongo(this IHoneyCombBuilder builder, string settingsSection)
+        {
+            var options = builder.GetSettings<MongoDbOptions>(settingsSection);
+
+            return builder.AddMongo(options);
+        }
+
         public static IHoneyCombBuilder AddMongoRepository<TEntity,TKey>(this IHoneyCombBuilder builder, string collectionName)
             where TEntity : IIdentifiable<TKey>
         {
