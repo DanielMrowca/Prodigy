@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HoneyComb.CQRS.Commands\HoneyComb.CQRS.Commands.csproj" />
+    <ProjectReference Include="..\HoneyComb.CQRS.Events\HoneyComb.CQRS.Events.csproj" />
+    <ProjectReference Include="..\HoneyComb.MessageBroker\HoneyComb.MessageBroker.csproj" />
+  </ItemGroup>
+
+</Project>

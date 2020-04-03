@@ -21,7 +21,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.CQRS.Queries", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.MongoDB", "src\HoneyComb.MongoDB\HoneyComb.MongoDB.csproj", "{0FC8C3F9-7D93-4700-A19B-E9A9B06479D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.HTTP", "src\HoneyComb.HTTP\HoneyComb.HTTP.csproj", "{AD92CA5C-EFDB-4FFF-87DE-C738F5861B92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.HTTP", "src\HoneyComb.HTTP\HoneyComb.HTTP.csproj", "{AD92CA5C-EFDB-4FFF-87DE-C738F5861B92}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.MessageBroker", "src\HoneyComb.MessageBroker\HoneyComb.MessageBroker.csproj", "{BDE8E53F-94D9-43D7-A6E9-9F8B7EB3B86F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MessageBroker", "MessageBroker", "{081CFE6C-CF31-4C06-A7BB-57AA2C39DBC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.MessageBroker.CQRS", "src\HoneyComb.MessageBroker.CQRS\HoneyComb.MessageBroker.CQRS.csproj", "{1816EC3D-7A7F-4295-A101-CD8576C79F27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.MessageBroker.RabbitMQ", "src\HoneyComb.MessageBroker.RabbitMQ\HoneyComb.MessageBroker.RabbitMQ.csproj", "{7E9F0F47-3AEF-4D68-AD86-12F4D3C2568C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,12 +73,27 @@ Global
 		{AD92CA5C-EFDB-4FFF-87DE-C738F5861B92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD92CA5C-EFDB-4FFF-87DE-C738F5861B92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD92CA5C-EFDB-4FFF-87DE-C738F5861B92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDE8E53F-94D9-43D7-A6E9-9F8B7EB3B86F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDE8E53F-94D9-43D7-A6E9-9F8B7EB3B86F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDE8E53F-94D9-43D7-A6E9-9F8B7EB3B86F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDE8E53F-94D9-43D7-A6E9-9F8B7EB3B86F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1816EC3D-7A7F-4295-A101-CD8576C79F27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1816EC3D-7A7F-4295-A101-CD8576C79F27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1816EC3D-7A7F-4295-A101-CD8576C79F27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1816EC3D-7A7F-4295-A101-CD8576C79F27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E9F0F47-3AEF-4D68-AD86-12F4D3C2568C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E9F0F47-3AEF-4D68-AD86-12F4D3C2568C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E9F0F47-3AEF-4D68-AD86-12F4D3C2568C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E9F0F47-3AEF-4D68-AD86-12F4D3C2568C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5271B924-C2DD-4C7A-BF15-4885DF73126B} = {3B246F1F-F430-48A8-A731-2B04CB3569DA}
+		{BDE8E53F-94D9-43D7-A6E9-9F8B7EB3B86F} = {081CFE6C-CF31-4C06-A7BB-57AA2C39DBC0}
+		{1816EC3D-7A7F-4295-A101-CD8576C79F27} = {081CFE6C-CF31-4C06-A7BB-57AA2C39DBC0}
+		{7E9F0F47-3AEF-4D68-AD86-12F4D3C2568C} = {081CFE6C-CF31-4C06-A7BB-57AA2C39DBC0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EF7F14D4-B634-4906-BC86-5DDD7598B9E5}
