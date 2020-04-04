@@ -5,6 +5,9 @@ using HoneyComb.MessageBroker.RabbitMQ.Publishers;
 using HoneyComb.MessageBroker.RabbitMQ.Subscribers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Open.Serialization.Json;
 using RabbitMQ.Client;
 using System.Linq;
 
@@ -12,8 +15,19 @@ namespace HoneyComb.MessageBroker.RabbitMQ
 {
     public static class Extensions
     {
-        public static IHoneyCombBuilder AddRabbitMQ(this IHoneyCombBuilder builder, RabbitMqOptions options)
+        public static IHoneyCombBuilder AddRabbitMQ(this IHoneyCombBuilder builder, RabbitMqOptions options, IJsonSerializer jsonSerializer = null)
         {
+            if(jsonSerializer is null)
+            {
+                var factory = new Open.Serialization.Json.Newtonsoft.JsonSerializerFactory(new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+                jsonSerializer = factory.GetSerializer();
+            }
+
+            builder.Services.AddSingleton(jsonSerializer);
             builder.Services.AddSingleton(options);
             builder.Services.AddSingleton<IConventionBuilder, UnderscoreCaseConventionBuilder>();
             builder.Services.AddSingleton<IConventionProvider, ConventionProvider>();
@@ -54,7 +68,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
             return AddRabbitMQ(builder, options);
         }
 
-        public static IBusSubscriber UserRabbitMQ(this IApplicationBuilder app)
+        public static IBusSubscriber UseRabbitMQ(this IApplicationBuilder app)
             => new RabbitMqSubscriber(app.ApplicationServices);
     }
 }

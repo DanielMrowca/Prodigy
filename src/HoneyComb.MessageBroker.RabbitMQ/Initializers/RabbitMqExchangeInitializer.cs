@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Reflection;
 using RabbitMQ.Client;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 
 namespace HoneyComb.MessageBroker.RabbitMQ.Initializers
 {
     /// <summary>
-    ///     Initialize declared exchanges by <see cref="MessageAttribute"/>
+    ///     Initialize declared exchanges by <see cref="MessageAttribute"/> and <see cref="RabbitMqOptions.Exchange"/>
     /// </summary>
     public class RabbitMqExchangeInitializer : IInitializer
     {
@@ -24,8 +26,13 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Initializers
 
         public Task InitializeAsync()
         {
-            var exchanges = AppDomain.CurrentDomain
-                .GetAssemblies()
+            if (_options.Exchange is null || string.IsNullOrWhiteSpace(_options.Exchange.Name))
+                throw new InvalidOperationException("RabbitMq exchange name must be set in RabbitMqOptions.Exchange.Name. " +
+                    "Add option in AddRabbitMQ(..) method or in appsettings.json");
+
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var exchanges = assemblies
+                .SelectMany(a => a.GetTypes())
                 .Where(t => t.IsDefined(typeof(MessageAttribute), false))
                 .Select(t => t.GetCustomAttribute<MessageAttribute>().Exchange)
                 .Distinct()
@@ -33,12 +40,8 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Initializers
 
             using (var channel = _connection.CreateModel())
             {
-                //Declare exchange from settings
-                if (_options.Exchange?.Declare == true && !string.IsNullOrWhiteSpace(_options.Exchange?.Name))
-                {
-                    channel.ExchangeDeclare(_options.Exchange.Name, _options.Exchange.Type, _options.Exchange.Durable,
-                        _options.Exchange.AutoDelete);
-                }
+                channel.ExchangeDeclare(_options.Exchange.Name, _options.Exchange.Type, _options.Exchange.Durable,
+                    _options.Exchange.AutoDelete);
 
                 //Declaring exchanges depend on MessageAttribute
                 foreach (var exchange in exchanges)

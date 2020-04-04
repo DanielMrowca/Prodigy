@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Open.Serialization.Json;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -12,19 +13,20 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Clients
         private readonly IModel _channel;
         private readonly RabbitMqOptions _options;
         private readonly ILogger<RabbitMqClient> _logger;
+        private readonly IJsonSerializer _jsonSerializer;
 
-        public RabbitMqClient(IConnection connection, RabbitMqOptions options, ILogger<RabbitMqClient> logger)
+        public RabbitMqClient(IConnection connection, RabbitMqOptions options, ILogger<RabbitMqClient> logger, IJsonSerializer jsonSerializer)
         {
             _channel = connection.CreateModel();
             _options = options;
             _logger = logger;
-
+            _jsonSerializer = jsonSerializer;
         }
 
         public void Send(object message, IConvention convention, string messageId = null,
             string correlationId = null, string spanContext = null, object messageContext = null, IDictionary<string, object> headers = null)
         {
-            var json = JsonConvert.SerializeObject(message);
+            var json = _jsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(json);
             var properties = GetProperties(messageId, correlationId, spanContext, headers);
             _channel.BasicPublish(convention.Exchange, convention.RoutingKey, properties, body);

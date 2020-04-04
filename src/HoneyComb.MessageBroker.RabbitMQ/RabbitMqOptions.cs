@@ -7,7 +7,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
 {
     public class RabbitMqOptions
     {
-        public string ConnectionName { get; set; } = Assembly.GetExecutingAssembly().GetName().Name;
+        public string ConnectionName { get; set; } = Assembly.GetEntryAssembly().GetName().Name;
         public IEnumerable<string> HostNames { get; set; } = new List<string> { "localhost" };
         public int Port { get; set; } = 5672;
         public string VirtualHost { get; set; } = "/";
@@ -48,7 +48,6 @@ namespace HoneyComb.MessageBroker.RabbitMQ
         {
             public string Name { get; set; }
             public string Type { get; set; }
-            public bool Declare { get; set; }
             public bool Durable { get; set; }
             public bool AutoDelete { get; set; }
         }

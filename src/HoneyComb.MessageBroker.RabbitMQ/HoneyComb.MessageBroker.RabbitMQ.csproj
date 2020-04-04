@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Open.Serialization.Json.Newtonsoft" Version="2.2.5" />
+    <PackageReference Include="Open.Serialization.Json.System" Version="2.2.4" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
   </ItemGroup>
 

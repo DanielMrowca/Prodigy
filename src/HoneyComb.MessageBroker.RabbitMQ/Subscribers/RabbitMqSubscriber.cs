@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Open.Serialization.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -15,6 +17,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
         private readonly IServiceProvider _serviceProvider;
         private readonly IConventionProvider _conventionProvider;
         private readonly IModel _channel;
+        private readonly IJsonSerializer _jsonSerializer;
         private readonly ILogger _logger;
         private readonly RabbitMqOptions _options;
         private readonly RabbitMqOptions.QosOptions _qosOptions;
@@ -24,6 +27,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             _serviceProvider = serviceProvider;
             _conventionProvider = serviceProvider.GetRequiredService<IConventionProvider>();
             _channel = serviceProvider.GetRequiredService<IConnection>().CreateModel();
+            _jsonSerializer = serviceProvider.GetRequiredService<IJsonSerializer>();
             _logger = serviceProvider.GetService<ILogger<RabbitMqSubscriber>>();
             _options = serviceProvider.GetRequiredService<RabbitMqOptions>();
             _qosOptions = _options?.Qos ?? new RabbitMqOptions.QosOptions();
@@ -60,7 +64,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
                 var timestamp = args.BasicProperties.Timestamp.UnixTime;
 
                 var payload = Encoding.UTF8.GetString(args.Body);
-                var message = JsonConvert.DeserializeObject<T>(payload);
+                var message = _jsonSerializer.Deserialize<T>(payload);
                 await handle?.Invoke(_serviceProvider, message, null);
                 _channel.BasicAck(args.DeliveryTag, false);
             }
@@ -71,5 +75,6 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
                 throw;
             }
         }
+
     }
 }
