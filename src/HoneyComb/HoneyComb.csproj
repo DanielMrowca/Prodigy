@@ -17,4 +17,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HoneyComb.Figlet\HoneyComb.Figlet.csproj" />
+  </ItemGroup>
+
 </Project>

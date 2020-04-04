@@ -15,7 +15,7 @@ namespace HoneyComb
         {
             _buildActions = new List<Action<IServiceProvider>>();
             Services = services;
-            Services.AddSingleton<IStartupInitializer, StartupInitializer>();
+            Services.AddSingleton<IStartupInitializer>(new StartupInitializer());
         }
 
         public static IHoneyCombBuilder Create(IServiceCollection services)
