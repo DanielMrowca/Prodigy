@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.MessageBroker.Rab
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.Figlet", "src\HoneyComb.Figlet\HoneyComb.Figlet.csproj", "{64BDBD28-2FAA-4A74-9C19-88716F86697E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.Logging", "src\HoneyComb.Logging\HoneyComb.Logging.csproj", "{40A8F6E8-1085-48C0-8813-03EE79AE7EF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.Logging", "src\HoneyComb.Logging\HoneyComb.Logging.csproj", "{40A8F6E8-1085-48C0-8813-03EE79AE7EF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

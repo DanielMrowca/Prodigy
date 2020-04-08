@@ -8,6 +8,7 @@ namespace HoneyComb.Models
     public class AppSettings
     {
         public string Name { get; set; } = Assembly.GetEntryAssembly().GetName().Name;
+        public string Title { get; set; } = Assembly.GetEntryAssembly().GetName().Name;
         public string Service { get; set; }
         public string Instance { get; set; }
         public string Version { get; set; } = Assembly.GetEntryAssembly().GetName().Version.ToString();

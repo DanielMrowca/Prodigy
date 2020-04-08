@@ -35,7 +35,7 @@ namespace HoneyComb
             builder.Services.AddSingleton(appSettings);
 
             if (appSettings.DisplayBanner)
-                Console.WriteLine(HoneyComb.Figlet.FiggleFonts.ANSI_Shadow.Render($"{appSettings.Name} v{appSettings.Version}"));
+                DisplayBanner(appSettings);
 
             return builder;
         }
@@ -67,6 +67,13 @@ namespace HoneyComb
             var model = new T();
             config.GetSection(sectionName).Bind(model);
             return model;
+        }
+
+        private static void DisplayBanner(AppSettings appSettings)
+        {
+            var textToDisplay = string.IsNullOrWhiteSpace(appSettings.Title) ? appSettings.Name : appSettings.Title;
+            Console.WriteLine(HoneyComb.Figlet.FiggleFonts.ANSI_Shadow.Render($"{textToDisplay}"));
+            Console.WriteLine(HoneyComb.Figlet.FiggleFonts.ANSI_Shadow.Render($"ver. {appSettings.Version}"));
         }
     }
 }
