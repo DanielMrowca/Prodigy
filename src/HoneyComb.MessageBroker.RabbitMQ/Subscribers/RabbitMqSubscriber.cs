@@ -15,6 +15,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
     public class RabbitMqSubscriber : IBusSubscriber
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly IBusPublisher _busPublisher;
         private readonly IConventionProvider _conventionProvider;
         private readonly IModel _channel;
         private readonly IJsonSerializer _jsonSerializer;
@@ -25,6 +26,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
         public RabbitMqSubscriber(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+            _busPublisher = serviceProvider.GetRequiredService<IBusPublisher>();
             _conventionProvider = serviceProvider.GetRequiredService<IConventionProvider>();
             _channel = serviceProvider.GetRequiredService<IConnection>().CreateModel();
             _jsonSerializer = serviceProvider.GetRequiredService<IJsonSerializer>();
