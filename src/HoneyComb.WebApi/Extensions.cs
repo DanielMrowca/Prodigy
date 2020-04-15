@@ -56,7 +56,7 @@ namespace HoneyComb.WebApi
             //    o.OutputFormatters.Add(new JsonOutputFormatter(jsonSerializer));
             //    o.InputFormatters.Clear();
             //    o.InputFormatters.Add(new JsonInputFormatter(jsonSerializer));
-            //})
+            //});
 
             configureMvc?.Invoke(mvcCoreBuilder);
 
@@ -83,7 +83,7 @@ namespace HoneyComb.WebApi
             return appBuilder;
         }
 
-        public static T ReadQuery<T>(this HttpContext context) where T : class
+        public static async Task<T> ReadQueryAsync<T>(this HttpContext context) where T : class
         {
             var request = context.Request;
             RouteValueDictionary values = null;
@@ -114,7 +114,17 @@ namespace HoneyComb.WebApi
                 .Replace("\"[", "[")
                 .Replace("]\"", "]");
 
-            return serializer.Deserialize<T>(serialized);
+            var payload = serializer.Deserialize<T>(serialized);
+            var results = new List<ValidationResult>();
+            if (payload != null && Validator.TryValidateObject(payload, new ValidationContext(payload), results))
+            {
+                return payload;
+            }
+
+            context.Response.StatusCode = 400;
+            await context.Response.WriteJsonAsync(results);
+
+            return default;
         }
 
         public static async Task<T> ReadJsonAsync<T>(this HttpContext httpContext)
@@ -138,9 +148,9 @@ namespace HoneyComb.WebApi
 
                 if (payload == null)
                     payload = serializer.Deserialize<T>(data);
-                    //payload = await httpContext.RequestServices.GetRequiredService<IJsonSerializer>().DeserializeAsync<T>(request.Body);
+                //payload = await httpContext.RequestServices.GetRequiredService<IJsonSerializer>().DeserializeAsync<T>(request.Body);
 
-                if (_bindRequestFromRoute && HasRouteData(request)) 
+                if (_bindRequestFromRoute && HasRouteData(request))
                 {
                     //Pobiera parametry z URL
                     var values = request.HttpContext.GetRouteData().Values;
