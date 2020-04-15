@@ -153,7 +153,7 @@ namespace HoneyComb.WebApi
         private static async Task BuildQueryContext<T>(HttpContext httpContext, Func<T, HttpContext, Task> context = null)
             where T : class
         {
-            var request = httpContext.ReadQuery<T>();
+            var request = await httpContext.ReadQueryAsync<T>();
             if (request is null || context is null)
                 return;
 
