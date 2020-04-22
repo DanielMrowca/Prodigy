@@ -35,13 +35,13 @@ namespace HoneyComb.MongoDB
             return builder.AddMongo(options);
         }
 
-        public static IHoneyCombBuilder AddMongoRepository<TEntity,TKey>(this IHoneyCombBuilder builder, string collectionName)
+        public static IHoneyCombBuilder AddMongoRepository<TEntity,TKey>(this IHoneyCombBuilder builder, string collectionName, string[] index = null)
             where TEntity : IIdentifiable<TKey>
         {
             builder.Services.AddTransient<IMongoRepository<TEntity, TKey>>(sp =>
             {
                 var db = sp.GetService<IMongoDatabase>();
-                return new MongoRepository<TEntity, TKey>(db, collectionName);
+                return new MongoRepository<TEntity, TKey>(db, collectionName, index);
             });
 
             return builder;
