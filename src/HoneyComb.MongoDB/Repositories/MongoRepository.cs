@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using HoneyComb.MongoDB;
 using MongoDB.Driver.Linq;
+using System.Linq;
+using MongoDB.Driver.Builders;
 
 namespace HoneyComb.MongoDB.Repositories
 {
@@ -16,9 +18,19 @@ namespace HoneyComb.MongoDB.Repositories
     {
         public IMongoCollection<TEntity> Collection { get; }
 
-        public MongoRepository(IMongoDatabase database, string collectionName)
+        public MongoRepository(IMongoDatabase database, string collectionName, string[] indexes = null)
         {
             Collection = database.GetCollection<TEntity>(collectionName);
+            if (indexes != null && indexes.Count() > 0)
+            {
+                foreach (string index in indexes)
+                {
+                    var keys = Builders<TEntity>.IndexKeys.Ascending(index);
+                    var options = new CreateIndexOptions() { Unique = true };
+                    var model = new CreateIndexModel<TEntity>(keys, options);
+                    Collection.Indexes.CreateOneAsync(model);
+                }
+            }          
         }
 
         public async Task<IReadOnlyList<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
