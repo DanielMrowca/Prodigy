@@ -1,6 +1,8 @@
 ﻿using HoneyComb.Logging.Settings;
 using HoneyComb.Models;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
 using System;
@@ -16,6 +18,7 @@ namespace HoneyComb.Logging
             Action<LoggerConfiguration> configure = null, string loggerSectionName = DefaultLoggerSectionName,
             string appSectionName = DefaultAppSectionName)
         {
+
             return webHostBuilder.UseSerilog((context, loggerConfig) =>
             {
                 if (string.IsNullOrWhiteSpace(loggerSectionName))
@@ -23,13 +26,29 @@ namespace HoneyComb.Logging
                 if (string.IsNullOrWhiteSpace(appSectionName))
                     appSectionName = DefaultAppSectionName;
 
-
                 var loggerSettings = context.Configuration.GetSettings<LoggerSettings>(loggerSectionName);
                 var appSettings = context.Configuration.GetSettings<AppSettings>(appSectionName);
 
                 BuildLoggerConfiguration(loggerConfig, loggerSettings, appSettings, context.HostingEnvironment.EnvironmentName);
                 configure?.Invoke(loggerConfig);
             });
+        }
+
+        public static IApplicationBuilder UseLogging(this IApplicationBuilder app,
+            string loggerSectionName = DefaultLoggerSectionName)
+        {
+            var config = app.ApplicationServices.GetService(typeof(IConfiguration)) as IConfiguration;
+            var loggerSettings = config.GetSettings<LoggerSettings>(loggerSectionName);
+            if (loggerSettings.UseCustomRequestLogging)
+                app.UseSerilogRequestLogging(opt =>
+                {
+                    opt.GetLevel = (httpContext, elapsedMs, ex) =>
+                    {
+                        return LogEventLevel.Debug;
+                    };
+                });
+
+            return app;
         }
 
         private static void BuildLoggerConfiguration(LoggerConfiguration loggerConfig,
@@ -49,6 +68,7 @@ namespace HoneyComb.Logging
                 loggerConfig.Enrich.WithProperty(prop.Key, prop.Value);
             }
 
+            ConfigureOverrides(loggerConfig, loggerSettings);
             Configure(loggerConfig, level, loggerSettings);
         }
 
@@ -70,7 +90,21 @@ namespace HoneyComb.Logging
 
             if (seqSettings.IsEnabled)
             {
-                loggerConfiguration.WriteTo.Seq(seqSettings.Url, apiKey: seqSettings.ApiKey);
+                loggerConfiguration.WriteTo.Seq(seqSettings.Url, restrictedToMinimumLevel: level, apiKey: seqSettings.ApiKey);
+            }
+        }
+
+        private static void ConfigureOverrides(LoggerConfiguration loggerConfiguration, LoggerSettings settings)
+        {
+            if (settings.UseCustomRequestLogging)
+                loggerConfiguration.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning);
+
+            foreach (var @override in settings.Override)
+            {
+                if (!Enum.TryParse<LogEventLevel>(@override.Value, out var level))
+                    level = LogEventLevel.Information;
+
+                loggerConfiguration.MinimumLevel.Override(@override.Key, level);
             }
         }
     }
