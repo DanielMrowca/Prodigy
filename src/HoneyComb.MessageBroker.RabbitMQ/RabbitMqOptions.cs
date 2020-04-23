@@ -8,7 +8,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
     public class RabbitMqOptions
     {
         public string ConnectionName { get; set; } = Assembly.GetEntryAssembly().GetName().Name;
-        public IEnumerable<string> HostNames { get; set; } = new List<string> { "localhost" };
+        public IEnumerable<string> HostNames { get; set; }
         public int Port { get; set; } = 5672;
         public string VirtualHost { get; set; } = "/";
         public string Username { get; set; } = "guest";
@@ -46,6 +46,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
 
         public class ExchangeOptions
         {
+            public bool Declare { get; set; }
             public string Name { get; set; }
             public string Type { get; set; }
             public bool Durable { get; set; }
