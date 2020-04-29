@@ -61,6 +61,16 @@ namespace HoneyComb
             }
         }
 
+        public static T GetSettings<T>(this IServiceCollection services, string sectionName)
+            where T : new()
+        {
+            using (var serviceProvicer = services.BuildServiceProvider())
+            {
+                var config = serviceProvicer.GetRequiredService<IConfiguration>();
+                return config.GetSettings<T>(sectionName);
+            }
+        }
+
         public static T GetSettings<T>(this IConfiguration config, string sectionName)
             where T : new()
         {
