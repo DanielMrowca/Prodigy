@@ -29,5 +29,6 @@ namespace HoneyComb.HTTP
         Task<HttpResult<T>> SendResultAsync<T>(HttpRequestMessage request);
         void SetHeaders(IDictionary<string, string> headers);
         void SetHeaders(Action<HttpRequestHeaders> headers);
+        void SetAuthorizationHeader(string scheme, string parameter);
     }
 }

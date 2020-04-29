@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using HoneyComb.HTTP.Exceptions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Polly;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -86,6 +88,10 @@ namespace HoneyComb.HTTP
                .ExecuteAsync(async () =>
                {
                    var response = await _httpClient.SendAsync(request);
+
+                   if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+                       throw new HttpResponseException(response);
+
                    if (!response.IsSuccessStatusCode)
                        return default;
 
@@ -104,6 +110,10 @@ namespace HoneyComb.HTTP
               .ExecuteAsync(async () =>
               {
                   var response = await _httpClient.SendAsync(request);
+
+                  if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+                      throw new HttpResponseException(response);
+
                   if (!response.IsSuccessStatusCode)
                       return new HttpResult<T>(default, response);
 
@@ -130,16 +140,23 @@ namespace HoneyComb.HTTP
             }
         }
         public void SetHeaders(Action<HttpRequestHeaders> headers) => headers?.Invoke(_httpClient.DefaultRequestHeaders);
+        public void SetAuthorizationHeader(string scheme, string parameter)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(scheme, parameter);
+        }
 
         protected virtual Task<HttpResponseMessage> SendAsync(string uri, Method method, object data = null)
         {
             return Policy.Handle<Exception>()
                 .WaitAndRetryAsync(_options.Retries, r => TimeSpan.FromSeconds(3 * r))
-                .ExecuteAsync(() =>
+                .ExecuteAsync(async () =>
                 {
                     var requestUri = uri.StartsWith("http") ? uri : $"http://{uri}";
-                    return GetResponseAsync(uri, method, data);
+                    var response = await GetResponseAsync(uri, method, data);
+                    if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+                        throw new HttpResponseException(response);
 
+                    return response;
                 });
         }
 
@@ -194,6 +211,8 @@ namespace HoneyComb.HTTP
         {
             return data == null ? EmptyJson : new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, ApplicationJsonContentType);
         }
+
+       
 
         protected enum Method
         {
