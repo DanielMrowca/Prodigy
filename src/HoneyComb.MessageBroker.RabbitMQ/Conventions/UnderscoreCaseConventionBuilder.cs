@@ -32,12 +32,12 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
 
         public string GetQueue(Type type)
         {
-            var attribute = GetAttribute(type);        
-            var exchange = $"{GetExchange(type)}.";
-            var queue = $"{type.Assembly.GetName().Name}/{exchange}{type.Name}";
-
+            string queue;
+            var attribute = GetAttribute(type);
             if (!string.IsNullOrWhiteSpace(attribute?.Queue))
                 queue = attribute.Queue;
+            else
+                queue = $"{type.Assembly.GetName().Name}/{GetExchange(type)}.{type.Name}";
 
             return ToUnderscoreCase(queue);
         }
