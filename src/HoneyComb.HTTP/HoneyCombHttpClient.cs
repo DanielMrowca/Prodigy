@@ -90,7 +90,7 @@ namespace HoneyComb.HTTP
                    var response = await _httpClient.SendAsync(request);
 
                    if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
-                       throw new HttpResponseException(response);
+                       await HandleResponseError(response);
 
                    if (!response.IsSuccessStatusCode)
                        return default;
@@ -112,7 +112,7 @@ namespace HoneyComb.HTTP
                   var response = await _httpClient.SendAsync(request);
 
                   if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
-                      throw new HttpResponseException(response);
+                      await HandleResponseError(response);
 
                   if (!response.IsSuccessStatusCode)
                       return new HttpResult<T>(default, response);
@@ -154,7 +154,7 @@ namespace HoneyComb.HTTP
                     var requestUri = uri.StartsWith("http") ? uri : $"http://{uri}";
                     var response = await GetResponseAsync(uri, method, data);
                     if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
-                        throw new HttpResponseException(response);
+                        await HandleResponseError(response);
 
                     return response;
                 });
@@ -207,12 +207,17 @@ namespace HoneyComb.HTTP
             }
         }
 
+        protected virtual async Task HandleResponseError(HttpResponseMessage errorResponse)
+        {
+            var stringResponse = await errorResponse.Content.ReadAsStringAsync();
+            var exReponse = JsonConvert.DeserializeObject(stringResponse);
+            throw new HttpResponseException(errorResponse, stringResponse, errorResponse.ReasonPhrase);
+        }
+
         protected static StringContent GetJsonData(object data)
         {
             return data == null ? EmptyJson : new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, ApplicationJsonContentType);
         }
-
-       
 
         protected enum Method
         {
