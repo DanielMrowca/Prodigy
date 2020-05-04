@@ -15,10 +15,10 @@ namespace HoneyComb.Logging
         private const string DefaultAppSectionName = "app";
 
         public static IWebHostBuilder UseLogging(this IWebHostBuilder webHostBuilder,
-            Action<LoggerConfiguration> configure = null, string loggerSectionName = DefaultLoggerSectionName,
+            Action<WebHostBuilderContext, LoggerConfiguration> configure = null, string loggerSectionName = DefaultLoggerSectionName,
             string appSectionName = DefaultAppSectionName)
         {
-
+            
             return webHostBuilder.UseSerilog((context, loggerConfig) =>
             {
                 if (string.IsNullOrWhiteSpace(loggerSectionName))
@@ -26,11 +26,12 @@ namespace HoneyComb.Logging
                 if (string.IsNullOrWhiteSpace(appSectionName))
                     appSectionName = DefaultAppSectionName;
 
+
                 var loggerSettings = context.Configuration.GetSettings<LoggerSettings>(loggerSectionName);
                 var appSettings = context.Configuration.GetSettings<AppSettings>(appSectionName);
 
                 BuildLoggerConfiguration(loggerConfig, loggerSettings, appSettings, context.HostingEnvironment.EnvironmentName);
-                configure?.Invoke(loggerConfig);
+                configure?.Invoke(context, loggerConfig);
             });
         }
 
