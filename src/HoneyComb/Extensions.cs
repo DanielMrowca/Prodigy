@@ -82,10 +82,11 @@ namespace HoneyComb
         private static void DisplayBanner(AppSettings appSettings)
         {
             var textToDisplay = string.IsNullOrWhiteSpace(appSettings.Title) ? appSettings.Name : appSettings.Title;
-            Console.WriteLine(HoneyComb.Figlet.FiggleFonts.ANSI_Shadow.Render(textToDisplay));
+            Console.WriteLine(FiggleFonts.ANSI_Shadow.Render(textToDisplay));
             if (!string.IsNullOrWhiteSpace(appSettings.Subtitle))
-                Console.WriteLine(HoneyComb.Figlet.FiggleFonts.ANSI_Shadow.Render(appSettings.Subtitle));
-            Console.WriteLine(HoneyComb.Figlet.FiggleFonts.ANSI_Shadow.Render($"ver. {appSettings.Version}"));
+                Console.WriteLine(FiggleFonts.ANSI_Shadow.Render(appSettings.Subtitle));
+            Console.WriteLine(FiggleFonts.ANSI_Shadow.Render($"ver. {appSettings.Version}"));
+            Console.WriteLine(FiggleFonts.ANSI_Shadow.Render($"[ {appSettings.VersionNumber} ]"));
         }
     }
 }

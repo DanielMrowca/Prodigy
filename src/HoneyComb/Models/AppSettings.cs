@@ -12,7 +12,10 @@ namespace HoneyComb.Models
         public string Subtitle { get; set; }
         public string Service { get; set; }
         public string Instance { get; set; }
-        public string Version { get; set; } = Assembly.GetEntryAssembly().GetName().Version.ToString();
+        public string VersionNumber { get; set; } = Assembly.GetEntryAssembly().GetName().Version.ToString();
+        public string Version { get; set; } = Assembly.GetEntryAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            .InformationalVersion;
         public bool DisplayBanner { get; set; } = true;
         public bool DisplayVersion { get; set; } = true;
     }

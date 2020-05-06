@@ -18,7 +18,7 @@ namespace HoneyComb.Logging
             Action<WebHostBuilderContext, LoggerConfiguration> configure = null, string loggerSectionName = DefaultLoggerSectionName,
             string appSectionName = DefaultAppSectionName)
         {
-            
+
             return webHostBuilder.UseSerilog((context, loggerConfig) =>
             {
                 if (string.IsNullOrWhiteSpace(loggerSectionName))
@@ -62,7 +62,8 @@ namespace HoneyComb.Logging
                 .MinimumLevel.Is(level)
                 .Enrich.WithProperty("Environment", environment)
                 .Enrich.WithProperty("Application", appSettings.Name)
-                .Enrich.WithProperty("Version", appSettings.Version);
+                .Enrich.WithProperty("Version", appSettings.Version)
+                .Enrich.WithProperty("VersionNumber", appSettings.VersionNumber);
 
             foreach (var prop in loggerSettings.Properties)
             {
