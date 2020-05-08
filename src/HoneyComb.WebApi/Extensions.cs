@@ -98,6 +98,7 @@ namespace HoneyComb.WebApi
                 values ??= new RouteValueDictionary();
                 foreach (var key in queryString.AllKeys)
                 {
+                    if (key is null) continue;
                     values.TryAdd(key, queryString[key]);
                 }
             }
