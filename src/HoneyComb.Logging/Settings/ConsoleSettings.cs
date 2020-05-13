@@ -6,6 +6,6 @@ namespace HoneyComb.Logging.Settings
 {
     public class ConsoleSettings
     {
-        public bool IsEnabled { get; set; }
+        public bool IsEnabled { get; set; } = true;
     }
 }

@@ -3,6 +3,7 @@ using HoneyComb.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using System;
@@ -51,7 +52,27 @@ namespace HoneyComb.Logging
             return app;
         }
 
-        private static void BuildLoggerConfiguration(LoggerConfiguration loggerConfig,
+        
+
+
+        public static LoggerConfiguration BuildLoggerConfiguration()
+        {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: false)
+            .AddJsonFile($"appsettings.{environment}.json", optional: false)
+            .Build();
+
+            return BuildLoggerConfiguration(new LoggerConfiguration(), config, environment);
+        }
+
+        public static LoggerConfiguration BuildLoggerConfiguration(LoggerConfiguration loggerConfig, IConfiguration configuration, string environmentName)
+            => BuildLoggerConfiguration(loggerConfig,
+                configuration.GetSettings<LoggerSettings>(DefaultLoggerSectionName),
+                configuration.GetSettings<AppSettings>(DefaultAppSectionName),
+                environmentName);
+
+        public static LoggerConfiguration BuildLoggerConfiguration(LoggerConfiguration loggerConfig,
             LoggerSettings loggerSettings, AppSettings appSettings, string environment)
         {
             if (!Enum.TryParse<LogEventLevel>(loggerSettings.Level, out var level))
@@ -71,6 +92,7 @@ namespace HoneyComb.Logging
 
             ConfigureOverrides(loggerConfig, loggerSettings);
             Configure(loggerConfig, level, loggerSettings);
+            return loggerConfig;
         }
 
         private static void Configure(LoggerConfiguration loggerConfiguration, LogEventLevel level,
