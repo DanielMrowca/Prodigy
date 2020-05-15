@@ -10,5 +10,6 @@ namespace HoneyComb.CQRS.Queries
         int Results { get; }
         string OrderBy { get; }
         string SortOrder { get; }
+        string LastId { get; }
     }
 }
