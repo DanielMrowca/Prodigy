@@ -4,16 +4,13 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
-using HoneyComb.MongoDB;
 using MongoDB.Driver.Linq;
 using System.Linq;
-using MongoDB.Driver.Builders;
 
 namespace HoneyComb.MongoDB.Repositories
 {
-    internal class MongoRepository<TEntity, TKey> : IMongoRepository<TEntity, TKey>
+    public class MongoRepository<TEntity, TKey> : IMongoRepository<TEntity, TKey>
         where TEntity : IIdentifiable<TKey>
     {
         public IMongoCollection<TEntity> Collection { get; }
@@ -50,8 +47,11 @@ namespace HoneyComb.MongoDB.Repositories
             => await Collection.AsQueryable().Where(predicate).PaginateAsync(query);
 
 
-        public async Task AddAsync(TEntity entity)
-            => await Collection.InsertOneAsync(entity);
+        public async Task<TEntity> AddAsync(TEntity entity)
+        {
+            await Collection.InsertOneAsync(entity);
+            return entity;
+        }
 
         public async Task UpdateAsync(TEntity entity)
             => await Collection.ReplaceOneAsync(x => x.Id.Equals(entity.Id), entity);
@@ -59,7 +59,10 @@ namespace HoneyComb.MongoDB.Repositories
         public async Task DeleteAsync(TKey id)
             => await Collection.DeleteOneAsync(x => x.Id.Equals(id));
 
-        public async Task AddMultipleAsync(IEnumerable<TEntity> entities)
-            => await Collection.InsertManyAsync(entities);
+        public async Task<IEnumerable<TEntity>> AddMultipleAsync(IEnumerable<TEntity> entities)
+        {
+            await Collection.InsertManyAsync(entities);
+            return entities;
+        }         
     }
 }

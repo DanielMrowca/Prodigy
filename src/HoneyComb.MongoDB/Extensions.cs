@@ -2,9 +2,6 @@
 using HoneyComb.Types;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace HoneyComb.MongoDB
 {
@@ -35,7 +32,7 @@ namespace HoneyComb.MongoDB
             return builder.AddMongo(options);
         }
 
-        public static IHoneyCombBuilder AddMongoRepository<TEntity,TKey>(this IHoneyCombBuilder builder, string collectionName, string[] index = null)
+        public static IHoneyCombBuilder AddMongoRepository<TEntity, TKey>(this IHoneyCombBuilder builder, string collectionName, string[] index = null)
             where TEntity : IIdentifiable<TKey>
         {
             builder.Services.AddTransient<IMongoRepository<TEntity, TKey>>(sp =>
@@ -46,5 +43,24 @@ namespace HoneyComb.MongoDB
 
             return builder;
         }
+
+        public static IHoneyCombBuilder AddMongoRepositoryWithSequentialIndex<TDocument, TKey>(this IHoneyCombBuilder builder, string collectionName, string[] index = null)
+           where TDocument : ISequentialIndex<TKey>
+        {
+            builder.AddMongoRepository<TDocument, TKey>(collectionName, index);
+            builder.Services.Decorate<IMongoRepository<TDocument, TKey>, MongoRepositoryWithSequentialIndexDecorator<TDocument, TKey>>();
+            builder.Services.AddSingleton<ISequentialIndexCache>(new SequentialIndexCache());
+            builder.Services.AddSingleton<ISequentialIndexProvider<TDocument, TKey>>(sp =>
+            {
+                var db = sp.GetService<IMongoDatabase>();
+                var cache = sp.GetService<ISequentialIndexCache>();
+                return new SequentialIndexProvider<TDocument, TKey>(db, collectionName, cache);
+            });
+
+            builder.AddInitializer<ISequentialIndexProvider<TDocument, TKey>>();
+
+            return builder;
+        }
+
     }
 }

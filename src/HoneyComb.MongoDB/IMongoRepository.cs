@@ -4,7 +4,6 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HoneyComb.MongoDB
@@ -19,8 +18,8 @@ namespace HoneyComb.MongoDB
         Task<PagedResult<TEntity>> BrowseAsync<TQuery>(Expression<Func<TEntity, bool>> predicate,
             TQuery query) where TQuery : IPagedQuery;
 
-        Task AddAsync(TEntity entity);
-        Task AddMultipleAsync(IEnumerable<TEntity> entities);
+        Task<TEntity> AddAsync(TEntity entity);
+        Task<IEnumerable<TEntity>> AddMultipleAsync(IEnumerable<TEntity> entities);
         Task UpdateAsync(TEntity entity);
         Task DeleteAsync(TKey id);
         Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);
