@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using System;
+using System.IO;
 
 namespace HoneyComb.Logging
 {
@@ -59,8 +60,9 @@ namespace HoneyComb.Logging
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var config = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false)
-            .AddJsonFile($"appsettings.{environment}.json", optional: false)
+            .AddJsonFile($"appsettings.{environment}.json", optional: true)
             .Build();
 
             return BuildLoggerConfiguration(new LoggerConfiguration(), config, environment);
