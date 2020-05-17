@@ -27,7 +27,7 @@ namespace HoneyComb.MongoDB.Repositories
                     var model = new CreateIndexModel<TEntity>(keys, options);
                     Collection.Indexes.CreateOneAsync(model);
                 }
-            }          
+            }
         }
 
         public async Task<IReadOnlyList<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
@@ -44,7 +44,7 @@ namespace HoneyComb.MongoDB.Repositories
 
         public async Task<PagedResult<TEntity>> BrowseAsync<TQuery>(Expression<Func<TEntity,
             bool>> predicate, TQuery query) where TQuery : IPagedQuery
-            => await Collection.AsQueryable().Where(predicate).PaginateAsync(query);
+            => await Collection.AsQueryable().Where(predicate).PaginateAsync<TEntity, TKey>(query);
 
 
         public async Task<TEntity> AddAsync(TEntity entity)
@@ -63,6 +63,6 @@ namespace HoneyComb.MongoDB.Repositories
         {
             await Collection.InsertManyAsync(entities);
             return entities;
-        }         
+        }
     }
 }
