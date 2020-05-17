@@ -132,6 +132,10 @@ namespace HoneyComb.WebApi.Dispatcher.Builders
             if (!(beforeDispatch is null))
                 await beforeDispatch?.Invoke(request, httpContext);
 
+            if(httpContext.Response.StatusCode == 401 || httpContext.Response.StatusCode == 403)
+                return;
+
+
             var dispatcher = httpContext.RequestServices.GetRequiredService<IHttpRequestDispatcher>();
             await dispatcher.HandleRequestAsync(request);
 
@@ -150,6 +154,9 @@ namespace HoneyComb.WebApi.Dispatcher.Builders
         {
             if (!(beforeDispatch is null))
                 await beforeDispatch?.Invoke(request, httpContext);
+
+            if (httpContext.Response.StatusCode == 401 || httpContext.Response.StatusCode == 403)
+                return;
 
             var queryDispatcher = httpContext.RequestServices.GetRequiredService<IHttpRequestDispatcher>();
             var result = await queryDispatcher.HandleRequestAsync<TRequest, TResult>(request);
