@@ -1,5 +1,6 @@
 ﻿using HoneyComb.CQRS.Events.Dispatchers;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace HoneyComb.CQRS.Events
 {
@@ -8,9 +9,7 @@ namespace HoneyComb.CQRS.Events
         public static IHoneyCombBuilder AddEventHandlers(this IHoneyCombBuilder builder)
         {
             builder.Services.Scan(s => s
-                .FromExecutingAssembly()
-                .FromCallingAssembly()
-                .FromApplicationDependencies()
+                .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
                 .AddClasses(c => c.AssignableTo(typeof(IEventHandler<>)))
                 .AsImplementedInterfaces()
                 .WithTransientLifetime());
