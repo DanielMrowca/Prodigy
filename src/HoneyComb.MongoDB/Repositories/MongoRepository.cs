@@ -15,19 +15,9 @@ namespace HoneyComb.MongoDB.Repositories
     {
         public IMongoCollection<TEntity> Collection { get; }
 
-        public MongoRepository(IMongoDatabase database, string collectionName, string[] indexes = null)
+        public MongoRepository(IMongoDatabase database, string collectionName)
         {
             Collection = database.GetCollection<TEntity>(collectionName);
-            if (indexes != null && indexes.Count() > 0)
-            {
-                foreach (string index in indexes)
-                {
-                    var keys = Builders<TEntity>.IndexKeys.Ascending(index);
-                    var options = new CreateIndexOptions() { Unique = true };
-                    var model = new CreateIndexModel<TEntity>(keys, options);
-                    Collection.Indexes.CreateOneAsync(model);
-                }
-            }
         }
 
         public async Task<IReadOnlyList<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
