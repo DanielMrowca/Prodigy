@@ -31,28 +31,28 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Initializers
                     "Add option in AddRabbitMQ(..) method or in appsettings.json");
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            var exchanges = assemblies
+            var messageAttributes = assemblies
                 .SelectMany(a => a.GetTypes())
                 .Where(t => t.IsDefined(typeof(MessageAttribute), false))
-                .Select(t => t.GetCustomAttribute<MessageAttribute>().Exchange)
+                .Select(t => t.GetCustomAttribute<MessageAttribute>())
                 .Distinct()
                 .ToList();
 
             using (var channel = _connection.CreateModel())
             {
-                if(_options.Exchange?.Declare == true)
+                if (_options.Exchange?.Declare == true)
                 {
                     channel.ExchangeDeclare(_options.Exchange.Name, _options.Exchange.Type, _options.Exchange.Durable,
                         _options.Exchange.AutoDelete);
                 }
 
                 //Declaring exchanges depend on MessageAttribute
-                foreach (var exchange in exchanges)
+                foreach (var attribute in messageAttributes)
                 {
-                    if (exchange.Equals(_options.Exchange?.Name, StringComparison.InvariantCultureIgnoreCase))
+                    if (attribute is null || attribute.Exchange.Equals(_options.Exchange?.Name, StringComparison.InvariantCultureIgnoreCase))
                         continue;
 
-                    channel.ExchangeDeclare(exchange, DefaultExchangeType, true);
+                    channel.ExchangeDeclare(attribute.Exchange, attribute.ExchangeType, true);
                 }
 
                 channel.Close();
