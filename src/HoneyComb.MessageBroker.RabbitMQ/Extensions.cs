@@ -15,9 +15,10 @@ namespace HoneyComb.MessageBroker.RabbitMQ
 {
     public static class Extensions
     {
-        public static IHoneyCombBuilder AddRabbitMQ(this IHoneyCombBuilder builder, RabbitMqOptions options, IJsonSerializer jsonSerializer = null)
+        public static IHoneyCombBuilder AddRabbitMQ(this IHoneyCombBuilder builder, RabbitMqOptions options, IJsonSerializer jsonSerializer = null,
+            IConventionBuilder conventionBuilder = null, IRabbitQueueIdentifierProvider rabbitQueueIdentifierProvider = null)
         {
-            if(jsonSerializer is null)
+            if (jsonSerializer is null)
             {
                 var factory = new Open.Serialization.Json.Newtonsoft.JsonSerializerFactory(new JsonSerializerSettings
                 {
@@ -27,10 +28,21 @@ namespace HoneyComb.MessageBroker.RabbitMQ
                 jsonSerializer = factory.GetSerializer();
             }
 
+            if (rabbitQueueIdentifierProvider is null)
+                builder.Services.AddSingleton<IRabbitQueueIdentifierProvider, RabbitQueueIdentifierProvider>();
+            else
+                builder.Services.AddSingleton(rabbitQueueIdentifierProvider);
+
+
             builder.Services.AddSingleton(jsonSerializer);
             builder.Services.AddSingleton(options);
             builder.Services.AddSingleton<IConventionBuilder, UnderscoreCaseConventionBuilder>();
-            builder.Services.AddSingleton<IConventionProvider, ConventionProvider>();
+
+            if (conventionBuilder is null)
+                builder.Services.AddSingleton<IConventionProvider, ConventionProvider>();
+            else
+                builder.Services.AddSingleton(conventionBuilder);
+
             builder.Services.AddSingleton<IRabbitMqClient, RabbitMqClient>();
             builder.Services.AddSingleton<IBusPublisher, RabbitMqPublisher>();
             builder.Services.AddSingleton<IBusSubscriber, RabbitMqSubscriber>();
@@ -62,10 +74,12 @@ namespace HoneyComb.MessageBroker.RabbitMQ
             return builder;
         }
 
-        public static IHoneyCombBuilder AddRabbitMQ(this IHoneyCombBuilder builder, string sectionName)
+        public static IHoneyCombBuilder AddRabbitMQ(this IHoneyCombBuilder builder, string sectionName, string connectionName = null, IJsonSerializer jsonSerializer = null,
+            IConventionBuilder conventionBuilder = null, IRabbitQueueIdentifierProvider rabbitQueueIdentifierProvider = null)
         {
             var options = builder.GetSettings<RabbitMqOptions>(sectionName);
-            return AddRabbitMQ(builder, options);
+            options.ConnectionName = string.IsNullOrWhiteSpace(connectionName) ? options.ConnectionName : connectionName;
+            return AddRabbitMQ(builder, options, jsonSerializer, conventionBuilder, rabbitQueueIdentifierProvider);
         }
 
         public static IBusSubscriber UseRabbitMQ(this IApplicationBuilder app)
