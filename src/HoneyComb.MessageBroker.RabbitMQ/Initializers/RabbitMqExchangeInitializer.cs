@@ -49,7 +49,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Initializers
                 //Declaring exchanges depend on MessageAttribute
                 foreach (var attribute in messageAttributes)
                 {
-                    if (attribute is null || attribute.Exchange.Equals(_options.Exchange?.Name, StringComparison.InvariantCultureIgnoreCase))
+                    if (attribute is null || (attribute.Exchange.Equals(_options.Exchange?.Name, StringComparison.InvariantCultureIgnoreCase) && _options.Exchange?.Declare == true))
                         continue;
 
                     channel.ExchangeDeclare(attribute.Exchange, attribute.ExchangeType, true);
