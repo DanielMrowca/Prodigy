@@ -4,8 +4,8 @@ using System.Text;
 
 namespace HoneyComb.MessageBroker.RabbitMQ
 {
-    public interface IRabbitQueueIdentifierProvider
+    public interface IRabbitQueuePrefixProvider
     {
-        string Identifier { get; }
+        string Prefix { get; }
     }
 }

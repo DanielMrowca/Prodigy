@@ -16,7 +16,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
     public static class Extensions
     {
         public static IHoneyCombBuilder AddRabbitMQ(this IHoneyCombBuilder builder, RabbitMqOptions options, IJsonSerializer jsonSerializer = null,
-            IConventionBuilder conventionBuilder = null, IRabbitQueueIdentifierProvider rabbitQueueIdentifierProvider = null)
+            IConventionBuilder conventionBuilder = null, IRabbitQueuePrefixProvider rabbitQueueIdentifierProvider = null)
         {
             if (jsonSerializer is null)
             {
@@ -28,10 +28,15 @@ namespace HoneyComb.MessageBroker.RabbitMQ
                 jsonSerializer = factory.GetSerializer();
             }
 
-            if (rabbitQueueIdentifierProvider is null)
-                builder.Services.AddSingleton<IRabbitQueueIdentifierProvider, RabbitQueueIdentifierProvider>();
-            else
-                builder.Services.AddSingleton(rabbitQueueIdentifierProvider);
+
+            var queueIdentIsRegistered = builder.Services.Any(x => x.ServiceType == typeof(IRabbitQueuePrefixProvider));
+            if (!queueIdentIsRegistered)
+            {
+                if (rabbitQueueIdentifierProvider is null)
+                    builder.Services.AddSingleton<IRabbitQueuePrefixProvider, RabbitQueueIdentifierProvider>();
+                else
+                    builder.Services.AddSingleton(rabbitQueueIdentifierProvider);
+            }
 
 
             builder.Services.AddSingleton(jsonSerializer);
@@ -74,13 +79,15 @@ namespace HoneyComb.MessageBroker.RabbitMQ
             return builder;
         }
 
-        public static IHoneyCombBuilder AddRabbitMQ(this IHoneyCombBuilder builder, string sectionName, string connectionName = null, IJsonSerializer jsonSerializer = null,
-            IConventionBuilder conventionBuilder = null, IRabbitQueueIdentifierProvider rabbitQueueIdentifierProvider = null)
+        public static IHoneyCombBuilder AddRabbitMQ(this IHoneyCombBuilder builder, string sectionName, string connectionName = null, string prefixQueueName = null)
         {
             var options = builder.GetSettings<RabbitMqOptions>(sectionName);
             options.ConnectionName = string.IsNullOrWhiteSpace(connectionName) ? options.ConnectionName : connectionName;
-            return AddRabbitMQ(builder, options, jsonSerializer, conventionBuilder, rabbitQueueIdentifierProvider);
+            var queueIdentProvider = string.IsNullOrWhiteSpace(prefixQueueName) ? null : new RabbitQueueIdentifierProvider(prefixQueueName);
+
+            return AddRabbitMQ(builder, options, null, null, queueIdentProvider);
         }
+
 
         public static IBusSubscriber UseRabbitMQ(this IApplicationBuilder app)
             => new RabbitMqSubscriber(app.ApplicationServices);

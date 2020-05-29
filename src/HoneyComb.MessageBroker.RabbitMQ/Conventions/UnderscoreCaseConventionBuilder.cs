@@ -11,9 +11,9 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
     public class UnderscoreCaseConventionBuilder : IConventionBuilder
     {
         private readonly RabbitMqOptions _options;
-        private readonly IRabbitQueueIdentifierProvider _identificationProvider;
+        private readonly IRabbitQueuePrefixProvider _identificationProvider;
 
-        public UnderscoreCaseConventionBuilder(RabbitMqOptions options, IRabbitQueueIdentifierProvider identificationProvider)
+        public UnderscoreCaseConventionBuilder(RabbitMqOptions options, IRabbitQueuePrefixProvider identificationProvider)
         {
             _options = options;
             _identificationProvider = identificationProvider;
@@ -40,9 +40,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
                 queue = attribute.Queue;
             else
             {
-                var prefix = string.IsNullOrWhiteSpace(attribute?.QueuePrefix) ? type.Assembly.GetName().Name : attribute.QueuePrefix;
-                if (attribute != null && attribute.AddUniqueIdentifierToQueueName)
-                    prefix = $"{prefix}.{_identificationProvider.Identifier}";
+                var prefix = _identificationProvider.Prefix;
                 queue = $"{prefix}/{GetExchange(type)}.{type.Name}";
             }
 

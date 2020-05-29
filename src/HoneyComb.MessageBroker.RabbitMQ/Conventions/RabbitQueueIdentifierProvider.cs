@@ -1,17 +1,14 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using System.Reflection;
 
 namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
 {
-    public class RabbitQueueIdentifierProvider : IRabbitQueueIdentifierProvider
+    public class RabbitQueueIdentifierProvider : IRabbitQueuePrefixProvider
     {
-        public string Identifier { get; private set; }
-
-        public RabbitQueueIdentifierProvider()
+        public string Prefix { get; private set; }
+        public RabbitQueueIdentifierProvider(string prefix = null)
         {
-            Identifier = Guid.NewGuid().ToString();
+            Prefix = string.IsNullOrWhiteSpace(prefix) ? Assembly.GetEntryAssembly().GetName().Name : prefix;
         }
     }
 }
