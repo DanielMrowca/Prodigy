@@ -11,10 +11,12 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
     public class UnderscoreCaseConventionBuilder : IConventionBuilder
     {
         private readonly RabbitMqOptions _options;
+        private readonly IRabbitQueueIdentifierProvider _identificationProvider;
 
-        public UnderscoreCaseConventionBuilder(RabbitMqOptions options)
+        public UnderscoreCaseConventionBuilder(RabbitMqOptions options, IRabbitQueueIdentifierProvider identificationProvider)
         {
             _options = options;
+            _identificationProvider = identificationProvider;
         }
 
         public string GetExchange(Type type)
@@ -37,7 +39,12 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
             if (!string.IsNullOrWhiteSpace(attribute?.Queue))
                 queue = attribute.Queue;
             else
-                queue = $"{type.Assembly.GetName().Name}/{GetExchange(type)}.{type.Name}";
+            {
+                var prefix = string.IsNullOrWhiteSpace(attribute?.QueuePrefix) ? type.Assembly.GetName().Name : attribute.QueuePrefix;
+                if (attribute != null && attribute.AddUniqueIdentifierToQueueName)
+                    prefix = $"{prefix}.{_identificationProvider.Identifier}";
+                queue = $"{prefix}/{GetExchange(type)}.{type.Name}";
+            }
 
             return ToUnderscoreCase(queue);
         }
@@ -54,10 +61,10 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
         }
 
         private static string ToUnderscoreCase(string str)
-            => string.Concat(str.Select((x, i) => i > 0 && str[i - 1] != '.' && str[i - 1] != '/' && char.IsUpper(x) ? 
-            "_" + x: 
+            => string.Concat(str.Select((x, i) => i > 0 && str[i - 1] != '.' && str[i - 1] != '/' && char.IsUpper(x) ?
+            "_" + x :
             x.ToString())).ToLower();
-        
+
 
         private static MessageAttribute GetAttribute(MemberInfo type) => type.GetCustomAttribute<MessageAttribute>();
     }
