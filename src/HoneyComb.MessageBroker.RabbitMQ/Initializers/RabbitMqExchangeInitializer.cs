@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Reflection;
 using RabbitMQ.Client;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
 
 namespace HoneyComb.MessageBroker.RabbitMQ.Initializers
 {
@@ -14,7 +12,6 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Initializers
     /// </summary>
     public class RabbitMqExchangeInitializer : IInitializer
     {
-        private const string DefaultExchangeType = ExchangeType.Topic;
         private readonly IConnection _connection;
         private readonly RabbitMqOptions _options;
 
@@ -26,9 +23,9 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Initializers
 
         public Task InitializeAsync()
         {
-            if ((_options.Exchange is null || string.IsNullOrWhiteSpace(_options.Exchange.Name) && _options.Exchange?.Declare == true))
-                throw new InvalidOperationException("RabbitMq exchange name must be set in RabbitMqOptions.Exchange.Name. " +
-                    "Add option in AddRabbitMQ(..) method or in appsettings.json");
+            if (string.IsNullOrWhiteSpace(_options.Exchange?.Name) && _options.Exchange?.Declare == true)
+                throw new InvalidOperationException("When RabbitMqOptions.Exchange.Declare = true then exchange name must be set in RabbitMqOptions.Exchange.Name. " +
+                    "Add option in AddRabbitMQ(..) method or in appsettings.json. Just set RabbitMqOptions.Exchange.Declare = false to skip this exception");
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             var messageAttributes = assemblies
