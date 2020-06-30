@@ -19,7 +19,7 @@ namespace HoneyComb.MongoDB
             TQuery query) where TQuery : IPagedQuery;
 
         Task<TEntity> AddAsync(TEntity entity);
-        Task<IEnumerable<TEntity>> AddMultipleAsync(IEnumerable<TEntity> entities);
+        Task<IList<TEntity>> AddMultipleAsync(IList<TEntity> entities);
         Task UpdateAsync(TEntity entity);
         Task DeleteAsync(TKey id);
         Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);

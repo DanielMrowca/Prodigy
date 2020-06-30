@@ -51,7 +51,7 @@ namespace HoneyComb.MongoDB.Repositories
         public async Task DeleteAsync(TKey id)
             => await _decoratedRepository.DeleteAsync(id);
 
-        public async Task<IEnumerable<TEntity>> AddMultipleAsync(IEnumerable<TEntity> entities)
+        public async Task<IList<TEntity>> AddMultipleAsync(IList<TEntity> entities)
         {
             foreach (var entity in entities)
                 entity.Index = _indexProvider.GetNextIndex();
