@@ -8,6 +8,8 @@ namespace HoneyComb.MessageBroker.RabbitMQ
     public class RabbitMqOptions
     {
         public string ConnectionName { get; set; } = Assembly.GetEntryAssembly().GetName().Name;
+        public bool ConnectionRetryForever { get; set; } = true;
+        public int ConnectionRetryCount { get; set; } = 10;
         public IEnumerable<string> HostNames { get; set; }
         public int Port { get; set; } = 5672;
         public string VirtualHost { get; set; } = "/";

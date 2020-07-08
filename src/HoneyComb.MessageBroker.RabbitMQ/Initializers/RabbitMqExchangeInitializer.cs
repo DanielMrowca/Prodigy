@@ -12,12 +12,12 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Initializers
     /// </summary>
     public class RabbitMqExchangeInitializer : IInitializer
     {
-        private readonly IConnection _connection;
+        private readonly IConnectionFactory _connectionFactory;
         private readonly RabbitMqOptions _options;
 
-        public RabbitMqExchangeInitializer(IConnection connection, RabbitMqOptions options)
+        public RabbitMqExchangeInitializer(IConnectionFactory connectionFactory, RabbitMqOptions options)
         {
-            _connection = connection;
+            _connectionFactory = connectionFactory;
             _options = options;
         }
 
@@ -35,7 +35,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Initializers
                 .Distinct()
                 .ToList();
 
-            using (var channel = _connection.CreateModel())
+            using (var channel = _connectionFactory.GetConnection().CreateModel())
             {
                 if (_options.Exchange?.Declare == true)
                 {

@@ -15,9 +15,9 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Clients
         private readonly ILogger<RabbitMqClient> _logger;
         private readonly IJsonSerializer _jsonSerializer;
 
-        public RabbitMqClient(IConnection connection, RabbitMqOptions options, ILogger<RabbitMqClient> logger, IJsonSerializer jsonSerializer)
+        public RabbitMqClient(IConnectionFactory connectionFactory, RabbitMqOptions options, ILogger<RabbitMqClient> logger, IJsonSerializer jsonSerializer)
         {
-            _channel = connection.CreateModel();
+            _channel = connectionFactory.GetConnection().CreateModel();
             _options = options;
             _logger = logger;
             _jsonSerializer = jsonSerializer;

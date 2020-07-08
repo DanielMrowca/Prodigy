@@ -33,11 +33,14 @@ namespace HoneyComb.Vault
             })
             .ConfigureAppConfiguration((ctx, cfg) =>
             {
+                var env = ctx.HostingEnvironment.EnvironmentName;
                 var options = cfg.Build().GetSettings<VaultOptions>(sectionName);
                 if (!options.Enabled)
                     return;
 
                 cfg.AddVaultAsync(options, keyValuePath).GetAwaiter().GetResult();
+                cfg.AddJsonFile("appsettings.json", false);
+                cfg.AddJsonFile($"appsettings.{env}.json", true);
             });
 
 

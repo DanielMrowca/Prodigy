@@ -25,7 +25,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             _serviceProvider = serviceProvider;
             _busPublisher = serviceProvider.GetRequiredService<IBusPublisher>();
             _conventionProvider = serviceProvider.GetRequiredService<IConventionProvider>();
-            _channel = serviceProvider.GetRequiredService<IConnection>().CreateModel();
+            _channel = serviceProvider.GetRequiredService<IConnectionFactory>().GetConnection().CreateModel();
             _jsonSerializer = serviceProvider.GetRequiredService<IJsonSerializer>();
             _logger = serviceProvider.GetService<ILogger<RabbitMqSubscriber>>();
             _options = serviceProvider.GetRequiredService<RabbitMqOptions>();
