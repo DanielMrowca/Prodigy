@@ -79,8 +79,9 @@ namespace HoneyComb.Vault
                         return Task.CompletedTask;
                     }
                 }
+                else
+                    secret = await keyValueSecrets.GetAsync(kvPath);
 
-                secret = await keyValueSecrets.GetAsync(kvPath);
                 var parser = new JsonParser();
                 var data = parser.Parse(JObject.FromObject(secret));
                 var source = new MemoryConfigurationSource { InitialData = data };
