@@ -75,7 +75,7 @@ namespace HoneyComb.Vault
                     secret = policyResult.Result;
                     Task OnRetryException(Exception ex, int r, TimeSpan ts, Context ctx)
                     {
-                        logger.Error($"Retry [ {r} / ∞ ]. Error while loading settings from Vault: '{options.Url}', KV path: '{kvPath}'. {ex.Message}");
+                        logger.Error(ex, $"Retry [ {r} / {double.PositiveInfinity} ]. Error while loading settings from Vault: '{options.Url}', KV path: '{kvPath}'. {ex.Message}");
                         return Task.CompletedTask;
                     }
                 }
