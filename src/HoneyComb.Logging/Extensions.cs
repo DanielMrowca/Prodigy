@@ -63,6 +63,7 @@ namespace HoneyComb.Logging
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false)
             .AddJsonFile($"appsettings.{environment}.json", optional: true)
+            .AddEnvironmentVariables()
             .Build();
 
             return BuildLoggerConfiguration(new LoggerConfiguration(), config, environment);
