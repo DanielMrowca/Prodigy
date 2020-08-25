@@ -53,7 +53,7 @@ namespace HoneyComb.Logging
             return app;
         }
 
-        
+
 
 
         public static LoggerConfiguration BuildLoggerConfiguration()
@@ -111,7 +111,7 @@ namespace HoneyComb.Logging
             if (fileSettings.IsEnabled)
             {
                 var path = string.IsNullOrWhiteSpace(fileSettings.Path) ? "logs/log-{Date}.txt" : fileSettings.Path;
-                loggerConfiguration.WriteTo.RollingFile(path, fileSizeLimitBytes: 10485760); //10485760 --> 10MB
+                loggerConfiguration.WriteTo.File(path, fileSizeLimitBytes: 10485760, rollOnFileSizeLimit: true); //10485760 --> 10MB
             }
 
             if (seqSettings.IsEnabled)
