@@ -53,9 +53,6 @@ namespace HoneyComb.Logging
             return app;
         }
 
-
-
-
         public static LoggerConfiguration BuildLoggerConfiguration()
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -110,8 +107,8 @@ namespace HoneyComb.Logging
 
             if (fileSettings.IsEnabled)
             {
-                var path = string.IsNullOrWhiteSpace(fileSettings.Path) ? "logs/log-{Date}.txt" : fileSettings.Path;
-                loggerConfiguration.WriteTo.File(path, fileSizeLimitBytes: 10485760, rollOnFileSizeLimit: true); //10485760 --> 10MB
+                var path = string.IsNullOrWhiteSpace(fileSettings.Path) ? "logs/log.txt" : fileSettings.Path;
+                loggerConfiguration.WriteTo.File(path, fileSizeLimitBytes: 10485760, rollOnFileSizeLimit: true, rollingInterval: RollingInterval.Day); //10485760 --> 10MB
             }
 
             if (seqSettings.IsEnabled)
