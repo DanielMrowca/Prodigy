@@ -2,19 +2,15 @@
 using HoneyComb.MessageBroker.RabbitMQ.Conventions;
 using HoneyComb.MessageBroker.RabbitMQ.Factories;
 using HoneyComb.MessageBroker.RabbitMQ.Initializers;
-using HoneyComb.MessageBroker.RabbitMQ.Options;
 using HoneyComb.MessageBroker.RabbitMQ.Publishers;
 using HoneyComb.MessageBroker.RabbitMQ.Subscribers;
+using HoneyComb.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Open.Serialization.Json;
-using Polly;
-using Polly.Retry;
 using RabbitMQ.Client;
-using System;
 using System.Linq;
 
 namespace HoneyComb.MessageBroker.RabbitMQ
@@ -58,8 +54,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
             builder.Services.AddSingleton<IBusPublisher, RabbitMqPublisher>();
             builder.Services.AddSingleton<IBusSubscriber, RabbitMqSubscriber>();
 
-            builder.Services.AddTransient<RabbitMqExchangeInitializer>();
-            builder.AddInitializer<RabbitMqExchangeInitializer>();
+            builder.Services.AddTransient<IInitializer, RabbitMqExchangeInitializer>();
 
             var connectionFactory = new ConnectionFactory
             {

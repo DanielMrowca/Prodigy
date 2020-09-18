@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -7,11 +8,11 @@ namespace HoneyComb.Types
 {
     public class StartupInitializer : IStartupInitializer
     {
-        private readonly IList<IInitializer> _initializers;
+        private readonly List<IInitializer> _initializers;
 
-        public StartupInitializer()
+        public StartupInitializer(IEnumerable<IInitializer> initializers)
         {
-            _initializers = new List<IInitializer>();
+            _initializers = new List<IInitializer>(initializers);
         }
 
         public void AddInitializer(IInitializer initializer)
@@ -28,6 +29,13 @@ namespace HoneyComb.Types
             {
                 await initializer.InitializeAsync();
             }
+        }
+
+        public void RemoveInitializer(Type initializer)
+        {
+            var toRemove = _initializers.SingleOrDefault(x => x.GetType() == initializer);
+            if (toRemove != null)
+                _initializers.Remove(toRemove);
         }
     }
 }

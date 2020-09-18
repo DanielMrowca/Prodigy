@@ -1,11 +1,13 @@
 ﻿using HoneyComb.MongoDB.Initializers;
 using HoneyComb.MongoDB.Repositories;
 using HoneyComb.Types;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HoneyComb.MongoDB
 {
@@ -46,13 +48,11 @@ namespace HoneyComb.MongoDB
             indexBuilder?.Invoke(indexes, indexKeyBuilder);
             if (indexes.Count > 0)
             {
-                builder.Services.AddSingleton(sp =>
+                builder.Services.AddSingleton<IInitializer>(sp =>
                 {
                     var db = sp.GetService<IMongoDatabase>();
                     return new MongoIndexesInitializer<TEntity, TKey>(db, collectionName, indexes);
                 });
-
-                builder.AddInitializer<MongoIndexesInitializer<TEntity, TKey>>();
             }
 
             builder.Services.AddTransient<IMongoRepository<TEntity, TKey>>(sp =>
@@ -78,10 +78,8 @@ namespace HoneyComb.MongoDB
                 return new SequentialIndexProvider<TDocument, TKey>(db, collectionName, cache);
             });
 
-            builder.AddInitializer<ISequentialIndexProvider<TDocument, TKey>>();
-
+            builder.Services.AddSingleton<IInitializer>(sp => sp.GetService<ISequentialIndexProvider<TDocument, TKey>>());
             return builder;
         }
-
     }
 }

@@ -149,9 +149,8 @@ namespace HoneyComb.WebApi
 
                 if (payload == null)
                     payload = serializer.Deserialize<T>(data);
-                //payload = await httpContext.RequestServices.GetRequiredService<IJsonSerializer>().DeserializeAsync<T>(request.Body);
-
-                if (_bindRequestFromRoute && HasRouteData(request))
+                
+                if (_bindRequestFromRoute && HasRouteData(request) && payload != null)
                 {
                     //Pobiera parametry z URL
                     var values = request.HttpContext.GetRouteData().Values;
