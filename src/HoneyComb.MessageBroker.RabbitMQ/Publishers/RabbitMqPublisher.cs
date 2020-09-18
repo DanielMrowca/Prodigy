@@ -15,9 +15,9 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Publishers
         }
 
         public Task PublishAsync<T>(T message, string messageId = null, string correlationId = null, string spanContext = null,
-            object messageContext = null, IDictionary<string, object> headers = null) where T : class
+            object messageContext = null, IDictionary<string, object> headers = null, IConvention convention = null) where T : class
         {
-            var convention = _conventionProvider.Get(message.GetType());
+            convention = convention ?? _conventionProvider.Get(message.GetType());
             _client.Send(message, convention, messageId, correlationId, spanContext, messageContext, headers);
             return Task.CompletedTask;
         }
