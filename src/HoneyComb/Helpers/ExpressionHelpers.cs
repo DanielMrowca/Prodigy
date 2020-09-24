@@ -27,7 +27,7 @@ namespace HoneyComb.Helpers
             var fromTypes = from.Type.GetGenericArguments();
             var toTypes = typeof(TTo).GetGenericArguments();
             if (fromTypes.Length != toTypes.Length)
-                throw new NotSupportedException( "Incompatible lambda function-type signatures");
+                throw new NotSupportedException("Incompatible lambda function-type signatures");
             var typeMap = new Dictionary<Type, Type>();
             for (int i = 0; i < fromTypes.Length; i++)
             {
@@ -80,11 +80,11 @@ namespace HoneyComb.Helpers
         {
             // re-perform any member-binding
             var expr = Visit(node.Expression);
-            if (expr.Type != node.Type)
+            if (expr != null && expr.Type != node.Type)
             {
-                MemberInfo newMember = expr.Type.GetMember(node.Member.Name)
-                                           .Single();
-                return Expression.MakeMemberAccess(expr, newMember);
+                var newMember = expr.Type.GetMember(node.Member?.Name).SingleOrDefault();
+                if (newMember != null)
+                    return Expression.MakeMemberAccess(expr, newMember);
             }
             return base.VisitMember(node);
         }
