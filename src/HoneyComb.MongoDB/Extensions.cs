@@ -1,13 +1,10 @@
 ﻿using HoneyComb.MongoDB.Initializers;
 using HoneyComb.MongoDB.Repositories;
 using HoneyComb.Types;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HoneyComb.MongoDB
 {
@@ -38,7 +35,7 @@ namespace HoneyComb.MongoDB
             return builder.AddMongo(options);
         }
 
-        public static IHoneyCombBuilder AddMongoRepository<TEntity, TKey>(this IHoneyCombBuilder builder, string collectionName, 
+        public static IHoneyCombBuilder AddMongoRepository<TEntity, TKey>(this IHoneyCombBuilder builder, string collectionName,
             Action<List<CreateIndexModel<TEntity>>, IndexKeysDefinitionBuilder<TEntity>> indexBuilder = null)
             where TEntity : IIdentifiable<TKey>
         {
