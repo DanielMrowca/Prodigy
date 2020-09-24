@@ -23,5 +23,11 @@ namespace HoneyComb.HTTP
 
             return builder;
         }
+
+        public static string ToStringArray(this string[] array)
+        {
+            var idsAsStringArray = string.Join("','", array);
+            return $"['{idsAsStringArray}']";
+        }
     }
 }
