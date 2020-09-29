@@ -4,6 +4,7 @@ using Newtonsoft.Json.Serialization;
 using Polly;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -16,18 +17,22 @@ namespace HoneyComb.HTTP
     {
         private const string ApplicationJsonContentType = "application/json";
         private static readonly StringContent EmptyJson = new StringContent("{}", Encoding.UTF8, ApplicationJsonContentType);
-        private static JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
 
+        private readonly JsonSerializerSettings _jsonSerializerSettings;
         private readonly HttpClient _httpClient;
         private readonly HttpClientOptions _options;
+        private readonly IEnumerable<JsonConverter> _jsonConverters;
 
-        public HoneyCombHttpClient(HttpClient httpClient, HttpClientOptions options)
+        public HoneyCombHttpClient(HttpClient httpClient, HttpClientOptions options, IEnumerable<JsonConverter> jsonConverters)
         {
             _httpClient = httpClient;
             _options = options;
+            _jsonConverters = jsonConverters;
+            _jsonSerializerSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Converters = jsonConverters?.ToList()
+            };
         }
 
         public Task<HttpResponseMessage> GetAsync(string uri)
@@ -99,7 +104,7 @@ namespace HoneyComb.HTTP
                    if (string.IsNullOrWhiteSpace(stringContent))
                        return default;
 
-                   return JsonConvert.DeserializeObject<T>(stringContent, JsonSerializerSettings);
+                   return JsonConvert.DeserializeObject<T>(stringContent, _jsonSerializerSettings);
                });
         }
 
@@ -121,7 +126,7 @@ namespace HoneyComb.HTTP
                   if (string.IsNullOrWhiteSpace(stringContent))
                       return new HttpResult<T>(default, response);
 
-                  var result = JsonConvert.DeserializeObject<T>(stringContent, JsonSerializerSettings);
+                  var result = JsonConvert.DeserializeObject<T>(stringContent, _jsonSerializerSettings);
                   return new HttpResult<T>(result, response);
               });
         }
@@ -170,7 +175,7 @@ namespace HoneyComb.HTTP
             if (string.IsNullOrWhiteSpace(stringContent))
                 return default;
 
-            return JsonConvert.DeserializeObject<T>(stringContent, JsonSerializerSettings);
+            return JsonConvert.DeserializeObject<T>(stringContent, _jsonSerializerSettings);
         }
 
         protected virtual async Task<HttpResult<T>> SendResultAsync<T>(string uri, Method method, object data = null)
@@ -183,7 +188,7 @@ namespace HoneyComb.HTTP
             if (string.IsNullOrWhiteSpace(stringContent))
                 return new HttpResult<T>(default, response);
 
-            var result = JsonConvert.DeserializeObject<T>(stringContent, JsonSerializerSettings);
+            var result = JsonConvert.DeserializeObject<T>(stringContent, _jsonSerializerSettings);
             return new HttpResult<T>(result, response);
         }
 
