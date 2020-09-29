@@ -10,5 +10,6 @@ namespace HoneyComb.MessageBroker
         string RoutingKey { get; }
         string Exchange { get; }
         string Queue { get; }
+        string QueuePrefix { get; }
     }
 }

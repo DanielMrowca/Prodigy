@@ -9,22 +9,24 @@ namespace HoneyComb.MessageBroker
         public string RoutingKey { get; }
         public string Queue { get; }
         public bool External { get; }
+        public string QueuePrefix { get; }
 
         /// <summary>
         ///     Message attribute for message broker
         /// </summary>
         /// <param name="exchange">Exchange name</param>
-        /// <param name="routingKey">Rputing key</param>
+        /// <param name="routingKey">Routing key</param>
         /// <param name="queue">Queue name</param>
         /// <param name="external">True/False</param>
         public MessageAttribute(string exchange = null, string routingKey = null, string queue = null,
-            bool external = false, string exchangeType = "topic")
+            bool external = false, string exchangeType = "topic", string queuePrefix = null)
         {
             Exchange = exchange;
             RoutingKey = routingKey;
             Queue = queue;
             External = external;
             ExchangeType = exchangeType;
+            QueuePrefix = queuePrefix;
         }
     }
 }
