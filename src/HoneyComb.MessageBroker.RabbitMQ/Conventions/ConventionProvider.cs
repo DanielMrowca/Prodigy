@@ -27,9 +27,10 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
             if (_conventions.TryGetValue(type, out var convention))
                 return convention;
 
-            convention = new Convention(type, _builder.GetRoutingKey(type), _builder.GetExchange(type), _builder.GetQueue(type));
+            convention = new Convention(type, _builder.GetRoutingKey(type), _builder.GetExchange(type), _builder.GetQueue(type), _builder.GetQueuePrefix(type));
             _conventions.TryAdd(type, convention);
             return convention;
         }
+
     }
 }

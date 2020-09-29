@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
 {
@@ -10,13 +8,15 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
         public string RoutingKey { get; }
         public string Exchange { get; }
         public string Queue { get; }
+        public string QueuePrefix { get; }
 
-        public Convention(Type type, string routingKey, string exchange, string queue)
+        public Convention(Type type, string routingKey, string exchange, string queue, string queuePrefix)
         {
             Type = type;
             RoutingKey = routingKey;
             Exchange = exchange;
             Queue = queue;
+            QueuePrefix = queuePrefix;
         }
     }
 }

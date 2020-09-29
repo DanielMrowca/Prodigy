@@ -39,10 +39,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
             if (!string.IsNullOrWhiteSpace(attribute?.Queue))
                 queue = attribute.Queue;
             else
-            {
-                var prefix = _identificationProvider.Prefix;
-                queue = $"{prefix}/{GetExchange(type)}.{type.Name}";
-            }
+                queue = $"{GetQueuePrefix(type)}/{GetExchange(type)}.{type.Name}";
 
             return ToUnderscoreCase(queue);
         }
@@ -58,6 +55,12 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
 
         }
 
+        public string GetQueuePrefix(Type type)
+        {
+            var attribute = GetAttribute(type);
+            return string.IsNullOrWhiteSpace(attribute?.QueuePrefix) ? _identificationProvider.Prefix : attribute.QueuePrefix;
+        }
+
         private static string ToUnderscoreCase(string str)
             => string.Concat(str.Select((x, i) => i > 0 && str[i - 1] != '.' && str[i - 1] != '/' && char.IsUpper(x) ?
             "_" + x :
@@ -65,5 +68,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
 
 
         private static MessageAttribute GetAttribute(MemberInfo type) => type.GetCustomAttribute<MessageAttribute>();
+
+
     }
 }

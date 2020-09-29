@@ -9,5 +9,6 @@ namespace HoneyComb.MessageBroker.RabbitMQ
         string GetRoutingKey(Type type);
         string GetExchange(Type type);
         string GetQueue(Type type);
+        string GetQueuePrefix(Type type);
     }
 }
