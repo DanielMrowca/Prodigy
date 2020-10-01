@@ -61,7 +61,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
 
             var consumer = new AsyncEventingBasicConsumer(channel);
             consumer.Received += async (sender, args) => await ReceivedMessage<T>(channel, sender, args, handle);
-            channel.BasicConsume(convention.Queue, false, consumer);
+            channel.BasicConsume(convention.Queue, _options.AutoAck, consumer);
             return this;
 
         }

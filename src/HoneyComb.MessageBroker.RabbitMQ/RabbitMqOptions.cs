@@ -33,6 +33,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
         public QueueOptions Queue { get; set; }
         public QosOptions Qos { get; set; }
         public string SpanContextHeader { get; set; }
+        public bool AutoAck { get; set; }
 
         public class LoggerOptions
         {
@@ -83,5 +84,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
             public ushort PrefetchCount { get; set; }
             public bool Global { get; set; }
         }
+
+       
     }
 }
