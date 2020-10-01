@@ -80,12 +80,14 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
 
                 var message = _jsonSerializer.Deserialize<T>(payload);
                 await handle?.Invoke(_serviceProvider, message, null);
-                channel.BasicAck(args.DeliveryTag, false);
+                if (!_options.AutoAck)
+                    channel.BasicAck(args.DeliveryTag, false);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                channel.BasicAck(args.DeliveryTag, false);
+                if (!_options.AutoAck)
+                    channel.BasicAck(args.DeliveryTag, false);
                 throw;
             }
         }
