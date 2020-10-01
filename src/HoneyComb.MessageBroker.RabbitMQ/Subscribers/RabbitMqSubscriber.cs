@@ -14,7 +14,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
         private readonly IServiceProvider _serviceProvider;
         private readonly IBusPublisher _busPublisher;
         private readonly IConventionProvider _conventionProvider;
-        private readonly IModel _channel;
+        private readonly IConnection _connection;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly ILogger _logger;
         private readonly RabbitMqOptions _options;
@@ -25,7 +25,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             _serviceProvider = serviceProvider;
             _busPublisher = serviceProvider.GetRequiredService<IBusPublisher>();
             _conventionProvider = serviceProvider.GetRequiredService<IConventionProvider>();
-            _channel = serviceProvider.GetRequiredService<IConnectionFactory>().GetConnection().CreateModel();
+            _connection = serviceProvider.GetRequiredService<IConnectionFactory>().GetConnection();
             _jsonSerializer = serviceProvider.GetRequiredService<IJsonSerializer>();
             _logger = serviceProvider.GetService<ILogger<RabbitMqSubscriber>>();
             _options = serviceProvider.GetRequiredService<RabbitMqOptions>();
@@ -43,18 +43,20 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             var exclusive = _options.Queue?.Exclusive ?? false;
             var autoDelete = _options.Queue?.AutoDelete ?? false;
 
-            _channel.QueueDeclare(convention.Queue, durable, exclusive, autoDelete);
-            _channel.QueueBind(convention.Queue, convention.Exchange, convention.RoutingKey);
-            _channel.BasicQos(_qosOptions.PrefetchSize, _qosOptions.PrefetchCount, _qosOptions.Global);
+            var channel = _connection.CreateModel();
 
-            var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.Received += async (sender, args) => await ReceivedMessage<T>(sender, args, handle);
-            _channel.BasicConsume(convention.Queue, false, consumer);
+            channel.QueueDeclare(convention.Queue, durable, exclusive, autoDelete);
+            channel.QueueBind(convention.Queue, convention.Exchange, convention.RoutingKey);
+            channel.BasicQos(_qosOptions.PrefetchSize, _qosOptions.PrefetchCount, _qosOptions.Global);
+
+            var consumer = new AsyncEventingBasicConsumer(channel);
+            consumer.Received += async (sender, args) => await ReceivedMessage<T>(channel, sender, args, handle);
+            channel.BasicConsume(convention.Queue, false, consumer);
             return this;
 
         }
 
-        private async Task ReceivedMessage<T>(object sender, BasicDeliverEventArgs args, Func<IServiceProvider, T, object, Task> handle)
+        private async Task ReceivedMessage<T>(IModel channel, object sender, BasicDeliverEventArgs args, Func<IServiceProvider, T, object, Task> handle)
         {
             try
             {
@@ -68,12 +70,12 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
 
                 var message = _jsonSerializer.Deserialize<T>(payload);
                 await handle?.Invoke(_serviceProvider, message, null);
-                _channel.BasicAck(args.DeliveryTag, false);
+                channel.BasicAck(args.DeliveryTag, false);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                _channel.BasicAck(args.DeliveryTag, false);
+                channel.BasicAck(args.DeliveryTag, false);
                 throw;
             }
         }

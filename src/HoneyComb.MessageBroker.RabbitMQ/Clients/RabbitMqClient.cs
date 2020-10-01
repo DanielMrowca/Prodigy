@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Open.Serialization.Json;
 using RabbitMQ.Client;
 using System;
@@ -10,14 +9,14 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Clients
 {
     public class RabbitMqClient : IRabbitMqClient
     {
-        private readonly IModel _channel;
+        private readonly IConnectionFactory _connectionFactory;
         private readonly RabbitMqOptions _options;
         private readonly ILogger<RabbitMqClient> _logger;
         private readonly IJsonSerializer _jsonSerializer;
 
         public RabbitMqClient(IConnectionFactory connectionFactory, RabbitMqOptions options, ILogger<RabbitMqClient> logger, IJsonSerializer jsonSerializer)
         {
-            _channel = connectionFactory.GetConnection().CreateModel();
+            _connectionFactory = connectionFactory;
             _options = options;
             _logger = logger;
             _jsonSerializer = jsonSerializer;
@@ -26,16 +25,17 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Clients
         public void Send(object message, IConvention convention, string messageId = null,
             string correlationId = null, string spanContext = null, object messageContext = null, IDictionary<string, object> headers = null)
         {
+            using var channel = _connectionFactory.GetConnection().CreateModel();
             var json = _jsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(json);
-            var properties = GetProperties(messageId, correlationId, spanContext, headers);
-            _channel.BasicPublish(convention.Exchange, convention.RoutingKey, properties, body);
-
+            var properties = GetProperties(channel,messageId, correlationId, spanContext, headers);
+            channel.BasicPublish(convention.Exchange, convention.RoutingKey, properties, body);
+            _logger.LogTrace("Published MessageId: {MessageId}, CorrelationId: {CorrelationId}, {@Message}", properties.MessageId, properties.CorrelationId, json);
         }
 
-        private IBasicProperties GetProperties(string messageId = null, string correlationId = null, string spanContext = null, IDictionary<string, object> headers = null)
+        private IBasicProperties GetProperties(IModel channel, string messageId = null, string correlationId = null, string spanContext = null, IDictionary<string, object> headers = null)
         {
-            var properties = _channel.CreateBasicProperties();
+            var properties = channel.CreateBasicProperties();
             properties.MessageId = string.IsNullOrWhiteSpace(messageId) ?
                 Guid.NewGuid().ToString("N") :
                 messageId;
