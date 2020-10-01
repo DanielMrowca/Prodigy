@@ -29,8 +29,9 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Clients
             var json = _jsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(json);
             var properties = GetProperties(channel,messageId, correlationId, spanContext, headers);
+            _logger.LogTrace("Publishing MessageId: {MessageId}, CorrelationId: {CorrelationId}, {@Message}", properties.MessageId, properties.CorrelationId, json);
             channel.BasicPublish(convention.Exchange, convention.RoutingKey, properties, body);
-            _logger.LogTrace("Published MessageId: {MessageId}, CorrelationId: {CorrelationId}, {@Message}", properties.MessageId, properties.CorrelationId, json);
+            
         }
 
         private IBasicProperties GetProperties(IModel channel, string messageId = null, string correlationId = null, string spanContext = null, IDictionary<string, object> headers = null)
