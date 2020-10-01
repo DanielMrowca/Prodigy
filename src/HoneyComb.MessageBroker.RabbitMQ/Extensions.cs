@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Open.Serialization.Json;
 using RabbitMQ.Client;
+using System;
 using System.Linq;
 
 namespace HoneyComb.MessageBroker.RabbitMQ
@@ -62,12 +63,12 @@ namespace HoneyComb.MessageBroker.RabbitMQ
                 VirtualHost = options.VirtualHost,
                 UserName = options.Username,
                 Password = options.Password,
-                RequestedConnectionTimeout = options.RequestedConnectionTimeout,
-                SocketReadTimeout = options.SocketReadTimeout,
-                SocketWriteTimeout = options.SocketWriteTimeout,
+                RequestedConnectionTimeout = TimeSpan.FromMilliseconds(options.RequestedConnectionTimeout), //ms
+                SocketReadTimeout = TimeSpan.FromMilliseconds(options.SocketReadTimeout), //ms
+                SocketWriteTimeout = TimeSpan.FromMilliseconds(options.SocketWriteTimeout), //ms
                 RequestedChannelMax = options.RequestedChannelMax,
                 RequestedFrameMax = options.RequestedFrameMax,
-                RequestedHeartbeat = options.RequestedHeartbeat,
+                RequestedHeartbeat = TimeSpan.FromSeconds(options.RequestedHeartbeat), //sec
                 UseBackgroundThreadsForIO = options.UseBackgroundThreadsForIO,
                 DispatchConsumersAsync = true,
                 Ssl = options.Ssl is null

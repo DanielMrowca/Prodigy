@@ -12,7 +12,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Factories
     public class ConnectionWithRetryFactory : IConnectionFactory
     {
         private static readonly object _lock = new object();
-        private static IConnection _connection = null;
+        private static IConnection _connection;
 
         private readonly ConnectionFactory _connectionFactory;
         private readonly RabbitMqOptions _options;
