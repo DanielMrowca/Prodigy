@@ -63,6 +63,9 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
                 var timestamp = args.BasicProperties.Timestamp.UnixTime;
 
                 var payload = Encoding.UTF8.GetString(args.Body);
+
+                _logger.LogTrace("RabbitMq received MessageId: {MessageId}, CorrelationId: {CorrelationId} {@RabbitMqMessage}", messageId, correlationId, payload);
+
                 var message = _jsonSerializer.Deserialize<T>(payload);
                 await handle?.Invoke(_serviceProvider, message, null);
                 _channel.BasicAck(args.DeliveryTag, false);
