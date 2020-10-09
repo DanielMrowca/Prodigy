@@ -11,7 +11,12 @@ namespace HoneyComb.CQRS.Commands
                 .FromExecutingAssembly()
                 .FromCallingAssembly()
                 .FromApplicationDependencies()
+
                 .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<>)))
+                .AsImplementedInterfaces()
+                .WithTransientLifetime()
+
+                .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<,>)))
                 .AsImplementedInterfaces()
                 .WithTransientLifetime());
 

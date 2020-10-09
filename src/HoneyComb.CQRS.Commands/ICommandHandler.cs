@@ -9,4 +9,9 @@ namespace HoneyComb.CQRS.Commands
     {
         Task HandleAsync(TCommand command);
     }
+
+    public interface ICommandHandler<in TCommand, TResult> where TCommand : class, ICommand<TResult>
+    {
+        Task<TResult> HandleAsync(TCommand command);
+    }
 }
