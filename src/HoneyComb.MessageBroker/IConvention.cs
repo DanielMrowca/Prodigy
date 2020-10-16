@@ -11,5 +11,8 @@ namespace HoneyComb.MessageBroker
         string Exchange { get; }
         string Queue { get; }
         string QueuePrefix { get; }
+        bool MultiThread { get; }
+        bool? AutoAck { get; }
+
     }
 }

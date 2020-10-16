@@ -61,6 +61,20 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
             return string.IsNullOrWhiteSpace(attribute?.QueuePrefix) ? _identificationProvider.Prefix : attribute.QueuePrefix;
         }
 
+        public bool GetMultiThread(Type type)
+        {
+            var attribute = GetAttribute(type);
+            return attribute.MultiThread;
+        }
+
+        public bool? GetAutoAck(Type type)
+        {
+            var attribute = GetAttribute(type);
+            return attribute?.AutoAck;
+        }
+
+
+
         private static string ToUnderscoreCase(string str)
             => string.Concat(str.Select((x, i) => i > 0 && str[i - 1] != '.' && str[i - 1] != '/' && char.IsUpper(x) ?
             "_" + x :

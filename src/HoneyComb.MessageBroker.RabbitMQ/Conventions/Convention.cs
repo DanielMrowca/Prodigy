@@ -9,14 +9,18 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
         public string Exchange { get; }
         public string Queue { get; }
         public string QueuePrefix { get; }
+        public bool MultiThread { get; }
+        public bool? AutoAck { get; }
 
-        public Convention(Type type, string routingKey, string exchange, string queue, string queuePrefix)
+        public Convention(Type type, string routingKey, string exchange, string queue, string queuePrefix, bool multiThread = false, bool? autoAck = null)
         {
             Type = type;
             RoutingKey = routingKey;
             Exchange = exchange;
             Queue = queue;
             QueuePrefix = queuePrefix;
+            MultiThread = multiThread;
+            AutoAck = autoAck;
         }
     }
 }

@@ -1,11 +1,7 @@
 ﻿using HoneyComb.CQRS.Queries;
 using HoneyComb.Types;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -130,8 +126,8 @@ namespace HoneyComb.MongoDB
         //    return PagedResult<T>.Create(data, page, resultsPerPage, totalPages, totalResults);
         //}
 
-        //public static IMongoQueryable<T> Limit<T>(this IMongoQueryable<T> collection, IPagedQuery query)
-        //    => collection.Limit(query.Page, query.Results);
+        ////public static IMongoQueryable<T> Limit<T>(this IMongoQueryable<T> collection, IPagedQuery query)
+        ////    => collection.Limit(query.Page, query.Results);
 
         //public static IMongoQueryable<T> Limit<T>(this IMongoQueryable<T> collection,
         //    int page = 1, int resultsPerPage = 10)

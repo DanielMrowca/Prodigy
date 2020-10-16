@@ -10,5 +10,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
         string GetExchange(Type type);
         string GetQueue(Type type);
         string GetQueuePrefix(Type type);
+        bool GetMultiThread(Type type);
+        bool? GetAutoAck(Type type);
     }
 }
