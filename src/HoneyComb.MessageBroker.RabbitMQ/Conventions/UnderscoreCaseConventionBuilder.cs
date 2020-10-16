@@ -64,7 +64,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
         public bool GetMultiThread(Type type)
         {
             var attribute = GetAttribute(type);
-            return attribute.MultiThread;
+            return attribute is null ? false : attribute.MultiThread;
         }
 
         public bool? GetAutoAck(Type type)
