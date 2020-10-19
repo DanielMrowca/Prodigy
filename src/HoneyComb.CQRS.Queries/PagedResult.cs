@@ -20,19 +20,19 @@ namespace HoneyComb.CQRS.Queries
 
         [JsonConstructor]
         protected PagedResult(IEnumerable<T> items, int resultsPerPage,
-           string lastId, bool hasNextData) :
-               base(resultsPerPage, lastId, hasNextData)
+           string lastId, bool hasNextData, long? totalResults) :
+               base(resultsPerPage, lastId, hasNextData, totalResults)
         {
             Items = items;
         }
 
         public static PagedResult<T> Create(IEnumerable<T> items, int resultsPerPage,
-           string lastId, bool hasNextData)
-            => new PagedResult<T>(items,  resultsPerPage, lastId, hasNextData);
+           string lastId, bool hasNextData, long? totalResults = null)
+            => new PagedResult<T>(items,  resultsPerPage, lastId, hasNextData, totalResults);
 
         public static PagedResult<T> From(PagedResultBase result, IEnumerable<T> items)
             => new PagedResult<T>(items, result.ResultsPerPage, result.LastId,
-                result.HasNextData);
+                result.HasNextData, result.TotalResults);
 
         //[JsonConstructor]
         //protected PagedResult(IEnumerable<T> items,
