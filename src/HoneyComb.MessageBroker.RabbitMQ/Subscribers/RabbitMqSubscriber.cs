@@ -54,19 +54,25 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             var durable = _options.Queue?.Durable ?? true;
             var exclusive = _options.Queue?.Exclusive ?? false;
             var autoDelete = _options.Queue?.AutoDelete ?? false;
+            var autoAck = convention.AutoAck.HasValue ? convention.AutoAck.Value : _options.AutoAck;
 
             channel.QueueDeclare(convention.Queue, durable, exclusive, autoDelete);
             channel.QueueBind(convention.Queue, convention.Exchange, convention.RoutingKey);
             channel.BasicQos(_qosOptions.PrefetchSize, _qosOptions.PrefetchCount, _qosOptions.Global);
 
             var consumer = new AsyncEventingBasicConsumer(channel);
-            consumer.Received += async (sender, args) => await ReceivedMessage<T>(channel, sender, args, handle);
-            channel.BasicConsume(convention.Queue, _options.AutoAck, consumer);
+
+            if (convention.MultiThread)
+                consumer.Received += (sender, args) => Task.Factory.StartNew(() => ReceivedMessage(channel, sender, args, handle, autoAck));
+            else
+                consumer.Received += (sender, args) => ReceivedMessage(channel, sender, args, handle, autoAck);
+
+            channel.BasicConsume(convention.Queue, autoAck, consumer);
             return this;
 
         }
 
-        private async Task ReceivedMessage<T>(IModel channel, object sender, BasicDeliverEventArgs args, Func<IServiceProvider, T, object, Task> handle)
+        private async Task ReceivedMessage<T>(IModel channel, object sender, BasicDeliverEventArgs args, Func<IServiceProvider, T, object, Task> handle, bool autoAck)
         {
             try
             {
@@ -75,18 +81,17 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
                 var timestamp = args.BasicProperties.Timestamp.UnixTime;
 
                 var payload = Encoding.UTF8.GetString(args.Body.Span);
-
                 _logger.LogTrace("RabbitMq received MessageId: {MessageId}, CorrelationId: {CorrelationId} {@RabbitMqMessage}", messageId, correlationId, payload);
-
+                
                 var message = _jsonSerializer.Deserialize<T>(payload);
-                await handle?.Invoke(_serviceProvider, message, null);
-                if (!_options.AutoAck)
+                await handle(_serviceProvider, message, null);
+                if (!autoAck)
                     channel.BasicAck(args.DeliveryTag, false);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                if (!_options.AutoAck)
+                if (!autoAck)
                     channel.BasicAck(args.DeliveryTag, false);
                 throw;
             }

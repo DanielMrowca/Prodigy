@@ -12,14 +12,27 @@ namespace HoneyComb.MessageBroker
         public string QueuePrefix { get; }
 
         /// <summary>
+        ///     Define if current queue/channel should be handled parallel
+        /// </summary>
+        public bool MultiThread { get; }
+
+        /// <summary>
+        ///     AutoAck set to TRUE improve performance --> Messages are not queued
+        /// </summary>
+        public bool? AutoAck { get; }
+
+        /// <summary>
         ///     Message attribute for message broker
         /// </summary>
         /// <param name="exchange">Exchange name</param>
         /// <param name="routingKey">Routing key</param>
         /// <param name="queue">Queue name</param>
-        /// <param name="external">True/False</param>
+        /// <param name="external"></param>
+        /// <param name="exchangeType"></param>
+        /// <param name="queuePrefix"></param>
+        /// <param name="autoAck">AutoAck set to TRUE improve performance --> Messages are not queued</param>
         public MessageAttribute(string exchange = null, string routingKey = null, string queue = null,
-            bool external = false, string exchangeType = "topic", string queuePrefix = null)
+            bool external = false, string exchangeType = "topic", string queuePrefix = null, bool multiThread = false, bool autoAck = false)
         {
             Exchange = exchange;
             RoutingKey = routingKey;
@@ -27,6 +40,8 @@ namespace HoneyComb.MessageBroker
             External = external;
             ExchangeType = exchangeType;
             QueuePrefix = queuePrefix;
+            MultiThread = multiThread;
+            AutoAck = autoAck;
         }
     }
 }

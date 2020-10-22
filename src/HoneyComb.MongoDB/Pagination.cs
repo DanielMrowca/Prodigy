@@ -13,27 +13,37 @@ namespace HoneyComb.MongoDB
 {
     public static class Pagination
     {
-        public static async Task<PagedResult<T>> PaginateAsync<T, TKey>(this IMongoQueryable<T> collection, int resultsPerPage = 10)
+        public static async Task<PagedResult<T>> PaginateAsync<T, TKey>(this IMongoQueryable<T> collection, int resultsPerPage = 10, long? totalResults = null, int? skip = null)
             where T : IIdentifiable<TKey>
         {
             if (resultsPerPage <= 0)
                 resultsPerPage = 10;
-
+            if (skip == null)
+                skip = 0;
             var result = await collection
+              .Skip((int)skip)
               .Take(resultsPerPage + 1)
+              .OrderBy(x => x.Id)
               .ToListAsync();
 
             var hasNextData = result.Count > resultsPerPage;
+            
             if (result.Count > 1 && hasNextData)
                 result.RemoveAt(result.Count - 1);
+
+
             var last = result.LastOrDefault();
-            return PagedResult<T>.Create(result, result.Count, last?.Id.ToString(), hasNextData);
+            return PagedResult<T>.Create(result, result.Count, last?.Id.ToString(), hasNextData, totalResults);
         }
 
        
         public static Task<PagedResult<T>> PaginateAsync<T, TKey>(this IMongoQueryable<T> collection, IPagedQuery query)
             where T : IIdentifiable<TKey>
             => PaginateAsync<T, TKey>(collection, query.Results);
+
+        public static Task<PagedResult<T>> PaginateAsync<T, TKey>(this IMongoQueryable<T> collection, IPagedQuery query, long totalResults)
+         where T : IIdentifiable<TKey>
+         => PaginateAsync<T, TKey>(collection, query.Results, totalResults, query.Skip);
 
 
         //public static async Task<PagedResult<TDocument>> PaginateAsync<TDocument>(
