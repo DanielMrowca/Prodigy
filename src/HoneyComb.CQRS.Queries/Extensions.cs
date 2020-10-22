@@ -1,5 +1,6 @@
 ﻿using HoneyComb.CQRS.Queries.Dispatchers;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace HoneyComb.CQRS.Queries
 {
@@ -7,13 +8,11 @@ namespace HoneyComb.CQRS.Queries
     {
         public static IHoneyCombBuilder AddQueryHandlers(this IHoneyCombBuilder builder)
         {
-            builder.Services.Scan(s => s
-               .FromExecutingAssembly()
-               .FromCallingAssembly()
-               .FromApplicationDependencies()
-               .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)))
-               .AsImplementedInterfaces()
-               .WithTransientLifetime());
+            builder.Services.Scan(s => 
+                s.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
+                    .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)))
+                    .AsImplementedInterfaces()
+                    .WithTransientLifetime());
 
             return builder;
         }

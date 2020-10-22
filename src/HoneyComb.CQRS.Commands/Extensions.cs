@@ -1,5 +1,6 @@
 ﻿using HoneyComb.CQRS.Commands.Dispatchers;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace HoneyComb.CQRS.Commands
 {
@@ -7,11 +8,8 @@ namespace HoneyComb.CQRS.Commands
     {
         public static IHoneyCombBuilder AddCommandHandlers(this IHoneyCombBuilder builder)
         {
-            builder.Services.Scan(s =>s
-                .FromExecutingAssembly()
-                .FromCallingAssembly()
-                .FromApplicationDependencies()
-
+            builder.Services.Scan(s => 
+            s.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
                 .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<>)))
                 .AsImplementedInterfaces()
                 .WithTransientLifetime()
