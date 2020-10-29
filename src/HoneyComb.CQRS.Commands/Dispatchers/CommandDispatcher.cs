@@ -20,12 +20,18 @@ namespace HoneyComb.CQRS.Commands.Dispatchers
             await handler.HandleAsync(command);
         }
 
-        public async Task<TResult> SendAsync<TCommand, TResult>(TCommand command) where TCommand : class, ICommand<TResult>
+        public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command)
         {
             using var scope = _serviceFactory.CreateScope();
+
             var handlerType = typeof(ICommandHandler<,>).MakeGenericType(command.GetType(), typeof(TResult));
-            dynamic handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<TCommand, TResult>>();
-            return await handler.HandleAsync(command);
+            var handler = scope.ServiceProvider.GetRequiredService(handlerType);
+            return await (Task<TResult>)handler.GetType().GetMethod("HandleAsync")?.Invoke(handler, new[] { command });
+
+
+            //var handlerType = typeof(ICommandHandler<,>).MakeGenericType(command.GetType(), typeof(TResult));
+            //dynamic handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<TCommand, TResult>>();
+            //return await handler.HandleAsync(command);
         }
     }
 }

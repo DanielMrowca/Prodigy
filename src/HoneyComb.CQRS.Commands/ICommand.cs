@@ -8,7 +8,7 @@ namespace HoneyComb.CQRS.Commands
     {
     }
 
-    public interface ICommand<TResult> : ICommand
+    public interface ICommand<TResult>
     {
     }
 }

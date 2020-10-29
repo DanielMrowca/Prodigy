@@ -20,8 +20,11 @@ namespace HoneyComb.CQRS.Queries.Dispatchers
             using (var scope = _serviceFactory.CreateScope())
             {
                 var handlerType = typeof(IQueryHandler<,>).MakeGenericType(query.GetType(), typeof(TResult));
-                dynamic handler = scope.ServiceProvider.GetRequiredService(handlerType);
-                return await handler.HandleAsync(query);
+                var handler = scope.ServiceProvider.GetRequiredService(handlerType);
+                return await (Task<TResult>)handler.GetType().GetMethod("HandleAsync")?.Invoke(handler, new[] { query });
+
+                //dynamic handler = scope.ServiceProvider.GetRequiredService(handlerType);
+                //return await handler.HandleAsync(query);
             }
         }
 
