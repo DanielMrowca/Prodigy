@@ -73,7 +73,11 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
             return attribute?.AutoAck;
         }
 
-
+        public bool? GetAckOnError(Type type)
+        {
+            var attribute = GetAttribute(type);
+            return attribute?.AckOnError;
+        }
 
         private static string ToUnderscoreCase(string str)
             => string.Concat(str.Select((x, i) => i > 0 && str[i - 1] != '.' && str[i - 1] != '/' && char.IsUpper(x) ?
@@ -83,6 +87,6 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
 
         private static MessageAttribute GetAttribute(MemberInfo type) => type.GetCustomAttribute<MessageAttribute>();
 
-
+        
     }
 }

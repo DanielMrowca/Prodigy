@@ -34,6 +34,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
         public QosOptions Qos { get; set; }
         public string SpanContextHeader { get; set; }
         public bool AutoAck { get; set; }
+        public bool AckOnError { get; set; } = true;
 
         public class LoggerOptions
         {

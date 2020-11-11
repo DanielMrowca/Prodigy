@@ -22,6 +22,11 @@ namespace HoneyComb.MessageBroker
         public bool? AutoAck { get; }
 
         /// <summary>
+        ///     AckOnError set to FALSE causes no acknowledgment of the message in case of error
+        /// </summary>
+        public bool? AckOnError { get; }
+
+        /// <summary>
         ///     Message attribute for message broker
         /// </summary>
         /// <param name="exchange">Exchange name</param>
@@ -32,7 +37,7 @@ namespace HoneyComb.MessageBroker
         /// <param name="queuePrefix"></param>
         /// <param name="autoAck">AutoAck set to TRUE improve performance --> Messages are not queued</param>
         public MessageAttribute(string exchange = null, string routingKey = null, string queue = null,
-            bool external = false, string exchangeType = "topic", string queuePrefix = null, bool multiThread = false, bool autoAck = false)
+            bool external = false, string exchangeType = "topic", string queuePrefix = null, bool multiThread = false, bool autoAck = false, bool ackOnError = true)
         {
             Exchange = exchange;
             RoutingKey = routingKey;
@@ -42,6 +47,7 @@ namespace HoneyComb.MessageBroker
             QueuePrefix = queuePrefix;
             MultiThread = multiThread;
             AutoAck = autoAck;
+            AckOnError = ackOnError;
         }
     }
 }

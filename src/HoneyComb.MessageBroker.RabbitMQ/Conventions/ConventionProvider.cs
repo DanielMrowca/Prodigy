@@ -30,7 +30,8 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
                 _builder.GetQueue(type),
                 _builder.GetQueuePrefix(type),
                 _builder.GetMultiThread(type),
-                _builder.GetAutoAck(type));
+                _builder.GetAutoAck(type),
+                _builder.GetAckOnError(type));
             _conventions.TryAdd(type, convention);
             return convention;
         }

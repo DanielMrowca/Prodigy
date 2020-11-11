@@ -13,6 +13,7 @@ namespace HoneyComb.MessageBroker
         string QueuePrefix { get; }
         bool MultiThread { get; }
         bool? AutoAck { get; }
+        bool? AckOnError { get; }
 
     }
 }

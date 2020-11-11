@@ -55,6 +55,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             var exclusive = _options.Queue?.Exclusive ?? false;
             var autoDelete = _options.Queue?.AutoDelete ?? false;
             var autoAck = convention.AutoAck.HasValue ? convention.AutoAck.Value : _options.AutoAck;
+            var ackOnError = convention.AckOnError.HasValue ? convention.AckOnError.Value : _options.AckOnError;
 
             channel.QueueDeclare(convention.Queue, durable, exclusive, autoDelete);
             channel.QueueBind(convention.Queue, convention.Exchange, convention.RoutingKey);
@@ -63,16 +64,22 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             var consumer = new AsyncEventingBasicConsumer(channel);
 
             if (convention.MultiThread)
-                consumer.Received += (sender, args) => Task.Factory.StartNew(() => ReceivedMessage(channel, sender, args, handle, autoAck));
+                consumer.Received += (sender, args) => Task.Factory.StartNew(() => ReceivedMessage(channel, sender, args, handle, autoAck, ackOnError));
             else
-                consumer.Received += (sender, args) => ReceivedMessage(channel, sender, args, handle, autoAck);
+                consumer.Received += (sender, args) => ReceivedMessage(channel, sender, args, handle, autoAck, ackOnError);
 
             channel.BasicConsume(convention.Queue, autoAck, consumer);
             return this;
 
         }
 
-        private async Task ReceivedMessage<T>(IModel channel, object sender, BasicDeliverEventArgs args, Func<IServiceProvider, T, object, Task> handle, bool autoAck)
+        private async Task ReceivedMessage<T>(
+            IModel channel,
+            object sender,
+            BasicDeliverEventArgs args,
+            Func<IServiceProvider, T, object, Task> handle,
+            bool autoAck,
+            bool ackOnError)
         {
             try
             {
@@ -82,7 +89,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
 
                 var payload = Encoding.UTF8.GetString(args.Body.Span);
                 _logger.LogTrace("RabbitMq received MessageId: {MessageId}, CorrelationId: {CorrelationId} {@RabbitMqMessage}", messageId, correlationId, payload);
-                
+
                 var message = _jsonSerializer.Deserialize<T>(payload);
                 await handle(_serviceProvider, message, null);
                 if (!autoAck)
@@ -91,7 +98,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                if (!autoAck)
+                if (ackOnError && !autoAck)
                     channel.BasicAck(args.DeliveryTag, false);
                 throw;
             }
