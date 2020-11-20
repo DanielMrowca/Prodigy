@@ -59,8 +59,10 @@ namespace HoneyComb.MongoDB
             var data = await collection.Limit(page, resultsPerPage).ToListAsync();
             return PagedResultFromStart<T>.Create(data, page, resultsPerPage, totalPages, totalResults ?? 0);
         }
+
         public static IMongoQueryable<T> Limit<T>(this IMongoQueryable<T> collection, IPagedQuery query)
             => collection.Limit(query.Page, query.Results);
+
         public static IMongoQueryable<T> Limit<T>(this IMongoQueryable<T> collection,
             int page = 1, int resultsPerPage = 10)
         {
@@ -78,10 +80,56 @@ namespace HoneyComb.MongoDB
             return data;
         }
 
+        public static async Task<PagedResultFromStart<T>> PaginateFromStartAsync<T, TKey>(this IFindFluent<T, T> collection,
+   int page = 1, int resultsPerPage = 10, long? totalResultsInCollection = 0)
+    where T : IIdentifiable<TKey>
+        {
+            if (page <= 0)
+            {
+                page = 1;
+            }
+            if (resultsPerPage <= 0)
+            {
+                resultsPerPage = 10;
+            }
+            var isEmpty = await collection.AnyAsync() == false;
+            if (isEmpty)
+            {
+                return PagedResultFromStart<T>.Empty;
+            }
+            var totalResults = totalResultsInCollection;//await collection.CountAsync();
+            var totalPages = (int)Math.Ceiling((decimal)totalResults / resultsPerPage);
+            var data = await collection.Limit(page, resultsPerPage).ToListAsync();
+            return PagedResultFromStart<T>.Create(data, page, resultsPerPage, totalPages, totalResults ?? 0);
+        }
+
+        public static IFindFluent<T, T> Limit<T>(this IFindFluent<T, T> collection, IPagedQuery query)
+           => collection.Limit(query.Page, query.Results);
+
+        public static IFindFluent<T, T> Limit<T>(this IFindFluent<T, T> collection,
+            int page = 1, int resultsPerPage = 10)
+        {
+            if (page <= 0)
+            {
+                page = 1;
+            }
+            if (resultsPerPage <= 0)
+            {
+                resultsPerPage = 10;
+            }
+            var skip = (page - 1) * resultsPerPage;
+            var data = collection.Skip(skip)
+                .Limit(resultsPerPage);
+            return data;
+        }
+
         public static Task<PagedResultFromStart<T>> PaginateFromStartAsync<T, TKey>(this IMongoQueryable<T> collection, IPagedQuery query, long? totalResultsInCollection)
             where T : IIdentifiable<TKey>
        => PaginateFromStartAsync<T, TKey>(collection, query.Page, query.Results, totalResultsInCollection);
 
+        public static Task<PagedResultFromStart<T>> PaginateFromStartAsync<T, TKey>(this IFindFluent<T, T> collection, IPagedQuery query, long? totalResultsInCollection)
+           where T : IIdentifiable<TKey>
+      => PaginateFromStartAsync<T, TKey>(collection, query.Page, query.Results, totalResultsInCollection);
 
         //public static async Task<PagedResult<TDocument>> PaginateAsync<TDocument>(
         //    this IMongoCollection<TDocument> collection,
