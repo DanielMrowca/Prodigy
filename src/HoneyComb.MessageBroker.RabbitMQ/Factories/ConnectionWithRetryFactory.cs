@@ -31,7 +31,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Factories
         {
             lock (_lock)
             {
-                if (_connection != null)
+                if (_connection != null )
                     return _connection;
 
                 var logger = _honeyCombBuilder.Services.BuildServiceProvider().GetRequiredService<ILogger<ConnectionWithRetryFactory>>();

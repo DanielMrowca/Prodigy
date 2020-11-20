@@ -2,17 +2,23 @@
 using Open.Serialization.Json;
 using RabbitMQ.Client;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace HoneyComb.MessageBroker.RabbitMQ.Clients
 {
     public class RabbitMqClient : IRabbitMqClient
     {
+        private readonly object _lock = new object();
         private readonly IConnectionFactory _connectionFactory;
         private readonly RabbitMqOptions _options;
         private readonly ILogger<RabbitMqClient> _logger;
         private readonly IJsonSerializer _jsonSerializer;
+        private readonly ConcurrentDictionary<int, IModel> _channels = new ConcurrentDictionary<int, IModel>();
+        private int _channelsCount;
+        private int _maxChannels;
 
         public RabbitMqClient(IConnectionFactory connectionFactory, RabbitMqOptions options, ILogger<RabbitMqClient> logger, IJsonSerializer jsonSerializer)
         {
@@ -20,17 +26,42 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Clients
             _options = options;
             _logger = logger;
             _jsonSerializer = jsonSerializer;
+            _maxChannels = options.MaxProducerChannels <= 0 ? 1000 : options.MaxProducerChannels;
         }
 
         public void Send(object message, IConvention convention, string messageId = null,
             string correlationId = null, string spanContext = null, object messageContext = null, IDictionary<string, object> headers = null)
         {
-            using var channel = _connectionFactory.GetConnection().CreateModel();
+            var threadId = Thread.CurrentThread.ManagedThreadId;
+            if (!_channels.TryGetValue(threadId, out var channel))
+            {
+                lock (_lock)
+                {
+                    if (_channelsCount >= _maxChannels)
+                    {
+                        throw new InvalidOperationException($"Cannot create RabbitMQ producer channel for thread: {threadId} " +
+                                                            $"(reached the limit of {_maxChannels} channels). " +
+                                                            "Modify `MaxProducerChannels` setting to allow more channels.");
+                    }
+
+                    channel = _connectionFactory.GetConnection().CreateModel();
+                    _channels.TryAdd(threadId, channel);
+                    _logger.LogTrace($"Created a channel for thread: {threadId}, total channels: {_channelsCount}/{_maxChannels}");
+                    _channelsCount++;
+                }
+            }
+            else
+            {
+                _logger.LogTrace($"Reused a channel for thread: {threadId}, total channels: {_channelsCount}/{_maxChannels}");
+            }
+
+
             var json = _jsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(json);
             var properties = GetProperties(channel,messageId, correlationId, spanContext, headers);
             _logger.LogTrace("Publishing MessageId: {MessageId}, CorrelationId: {CorrelationId}, {@Message}", properties.MessageId, properties.CorrelationId, json);
             channel.BasicPublish(convention.Exchange, convention.RoutingKey, properties, body);
+            
             
         }
 

@@ -33,6 +33,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
         public QueueOptions Queue { get; set; }
         public QosOptions Qos { get; set; }
         public string SpanContextHeader { get; set; }
+        public int MaxProducerChannels { get; set; }
         public bool AutoAck { get; set; }
         public bool AckOnError { get; set; } = true;
 
