@@ -46,13 +46,13 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Clients
 
                     channel = _connectionFactory.GetConnection().CreateModel();
                     _channels.TryAdd(threadId, channel);
-                    _logger.LogTrace($"Created a channel for thread: {threadId}, total channels: {_channelsCount}/{_maxChannels}");
+                    _logger.LogTrace("Created a channel for thread: {ThreadId}, total channels: {ChannelsCount}/{MaxChannels}", threadId, _channelsCount, _maxChannels);
                     _channelsCount++;
                 }
             }
             else
             {
-                _logger.LogTrace($"Reused a channel for thread: {threadId}, total channels: {_channelsCount}/{_maxChannels}");
+                _logger.LogTrace("Reused a channel for thread: {ThreadId}, total channels: {ChannelsCount}/{MaxChannels}", threadId, _channelsCount, _maxChannels);
             }
 
 
