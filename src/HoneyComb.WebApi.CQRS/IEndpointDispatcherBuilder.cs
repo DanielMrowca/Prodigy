@@ -29,6 +29,15 @@ namespace HoneyComb.WebApi.CQRS
            Action<IEndpointConventionBuilder> endpoint = null, bool auth = false, string roles = null,
            params string[] policies) where T : class, ICommand;
 
+        IEndpointDispatcherBuilder Post<T, TResult>(string path,
+          Func<T, HttpContext, Task> beforeDispatch = null,
+          Func<T, HttpContext, Task> afterDispatch = null,
+          Action<IEndpointConventionBuilder> endpoint = null,
+          bool returnResult = true,
+          bool auth = false, 
+          string roles = null,
+          params string[] policies) where T : class, ICommand<TResult>;
+
         IEndpointDispatcherBuilder Put(string path, Func<HttpContext, Task> context = null,
           Action<IEndpointConventionBuilder> endpoint = null, bool auth = false, string roles = null,
           params string[] policies);

@@ -76,6 +76,19 @@ namespace HoneyComb.WebApi.CQRS.Builders
             return this;
         }
 
+        public IEndpointDispatcherBuilder Post<T, TResult>(
+            string path, Func<T, HttpContext, Task> beforeDispatch, 
+            Func<T, HttpContext, Task> afterDispatch, 
+            Action<IEndpointConventionBuilder> endpoint,
+            bool returnResult,
+            bool auth,
+            string roles,
+            params string[] policies) where T : class, ICommand<TResult>
+        {
+            _builder.Post<T>(path, (cmd, ctx) => BuildCommandContext<T,TResult>(cmd, ctx, returnResult, beforeDispatch, afterDispatch), endpoint, auth, roles, policies);
+            return this;
+        }
+
         public IEndpointDispatcherBuilder Put(string path, Func<HttpContext, Task> context = null,
             Action<IEndpointConventionBuilder> endpoint = null, bool auth = false, string roles = null, params string[] policies)
         {
@@ -108,7 +121,8 @@ namespace HoneyComb.WebApi.CQRS.Builders
             return this;
         }
 
-        private static async Task BuildCommandContext<T>(T command, HttpContext context,
+        private static async Task BuildCommandContext<T>( T command, 
+            HttpContext context,
             Func<T, HttpContext, Task> beforeDispatch = null,
             Func<T, HttpContext, Task> afterDispatch = null) where T : class, ICommand
         {
@@ -122,6 +136,33 @@ namespace HoneyComb.WebApi.CQRS.Builders
             {
                 context.Response.StatusCode = 200;
                 return;
+            }
+
+            await afterDispatch?.Invoke(command, context);
+        }
+
+
+        private static async Task BuildCommandContext<T, TResult>( T command,
+            HttpContext context,
+            bool returnResult = true,
+            Func<T, HttpContext, Task> beforeDispatch = null,
+            Func<T, HttpContext, Task> afterDispatch = null) where T : class, ICommand<TResult>
+        {
+            if (!(beforeDispatch is null))
+                await beforeDispatch?.Invoke(command, context);
+
+            var dispatcher = context.RequestServices.GetRequiredService<ICommandDispatcher>();
+            var result = await dispatcher.SendAsync(command);
+
+            if (afterDispatch is null)
+            {
+                context.Response.StatusCode = 200;
+
+                if(result != null && returnResult)
+                {
+                    await context.Response.WriteJsonAsync(result);
+                    return;
+                }
             }
 
             await afterDispatch?.Invoke(command, context);
