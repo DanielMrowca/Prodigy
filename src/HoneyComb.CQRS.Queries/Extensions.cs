@@ -8,11 +8,22 @@ namespace HoneyComb.CQRS.Queries
     {
         public static IHoneyCombBuilder AddQueryHandlers(this IHoneyCombBuilder builder)
         {
-            builder.Services.Scan(s => 
+            builder.Services.Scan(s =>
                 s.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-                    .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)))
+                .AddClasses(c =>
+                {
+                    c.AssignableTo(typeof(IQueryHandler<,>));
+                    c.WithoutAttribute<QueryHandlerAttribute>();
+                })
                     .AsImplementedInterfaces()
-                    .WithTransientLifetime());
+                    .WithScopedLifetime()
+                .AddClasses(c => 
+                {
+                    c.AssignableTo(typeof(IQueryHandler<,>));
+                    c.WithAttribute<QueryHandlerAttribute>(x=> x.AutoRegister);
+                })
+                    .AsImplementedInterfaces()
+                    .WithScopedLifetime());
 
             return builder;
         }
