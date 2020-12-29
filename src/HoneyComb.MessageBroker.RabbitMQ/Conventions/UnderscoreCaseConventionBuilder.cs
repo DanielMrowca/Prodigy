@@ -70,13 +70,13 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
         public bool? GetAutoAck(Type type)
         {
             var attribute = GetAttribute(type);
-            return attribute?.AutoAck;
+            return attribute?.AutoAck ?? _options.AutoAck;
         }
 
         public bool? GetAckOnError(Type type)
         {
             var attribute = GetAttribute(type);
-            return attribute?.AckOnError;
+            return attribute?.AckOnError ?? _options.AckOnError;
         }
 
         private static string ToUnderscoreCase(string str)

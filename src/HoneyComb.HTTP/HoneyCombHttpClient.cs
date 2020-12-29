@@ -44,31 +44,31 @@ namespace HoneyComb.HTTP
         public Task<HttpResult<T>> GetResultAsync<T>(string uri)
             => SendResultAsync<T>(uri, Method.Get);
 
-        public Task<HttpResponseMessage> PostAsync(string uri, object data = null)
-            => SendAsync(uri, Method.Post, data);
+        public Task<HttpResponseMessage> PostAsync(string uri, object data = null, CompressionMethod? compression = null)
+            => SendAsync(uri, Method.Post, data, compression);
 
-        public Task<T> PostAsync<T>(string uri, object data = null)
-            => SendAsync<T>(uri, Method.Post, data);
+        public Task<T> PostAsync<T>(string uri, object data = null, CompressionMethod? compression = null)
+            => SendAsync<T>(uri, Method.Post, data, compression);
 
-        public Task<HttpResult<T>> PostResultAsync<T>(string uri, object data = null)
-            => SendResultAsync<T>(uri, Method.Post, data);
-        public Task<HttpResponseMessage> PutAsync(string uri, object data = null)
-            => SendAsync(uri, Method.Put, data);
+        public Task<HttpResult<T>> PostResultAsync<T>(string uri, object data = null, CompressionMethod? compression = null)
+            => SendResultAsync<T>(uri, Method.Post, data, compression);
+        public Task<HttpResponseMessage> PutAsync(string uri, object data = null, CompressionMethod? compression = null)
+            => SendAsync(uri, Method.Put, data, compression);
 
-        public Task<T> PutAsync<T>(string uri, object data = null)
-            => SendAsync<T>(uri, Method.Put, data);
+        public Task<T> PutAsync<T>(string uri, object data = null, CompressionMethod? compression = null)
+            => SendAsync<T>(uri, Method.Put, data, compression);
 
-        public Task<HttpResult<T>> PutResultAsync<T>(string uri, object data = null)
-            => SendResultAsync<T>(uri, Method.Put, data);
+        public Task<HttpResult<T>> PutResultAsync<T>(string uri, object data = null, CompressionMethod? compression = null)
+            => SendResultAsync<T>(uri, Method.Put, data, compression);
 
-        public Task<HttpResponseMessage> PatchAsync(string uri, object data = null)
-            => SendAsync(uri, Method.Patch, data);
+        public Task<HttpResponseMessage> PatchAsync(string uri, object data = null, CompressionMethod? compression = null)
+            => SendAsync(uri, Method.Patch, data, compression);
 
-        public Task<T> PatchAsync<T>(string uri, object data = null)
-            => SendAsync<T>(uri, Method.Patch, data);
+        public Task<T> PatchAsync<T>(string uri, object data = null, CompressionMethod? compression = null)
+            => SendAsync<T>(uri, Method.Patch, data, compression);
 
-        public Task<HttpResult<T>> PatchResultAsync<T>(string uri, object data = null)
-            => SendResultAsync<T>(uri, Method.Patch, data);
+        public Task<HttpResult<T>> PatchResultAsync<T>(string uri, object data = null, CompressionMethod? compression = null)
+            => SendResultAsync<T>(uri, Method.Patch, data, compression);
 
         public Task<HttpResponseMessage> DeleteAsync(string uri)
             => SendAsync(uri, Method.Delete);
@@ -150,14 +150,14 @@ namespace HoneyComb.HTTP
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(scheme, parameter);
         }
 
-        protected virtual Task<HttpResponseMessage> SendAsync(string uri, Method method, object data = null)
+        protected virtual Task<HttpResponseMessage> SendAsync(string uri, Method method, object data = null, CompressionMethod? compression = null)
         {
             return Policy.Handle<Exception>()
                 .WaitAndRetryAsync(_options.Retries, r => TimeSpan.FromSeconds(3 * r))
                 .ExecuteAsync(async () =>
                 {
                     var requestUri = uri.StartsWith("http") ? uri : $"http://{uri}";
-                    var response = await GetResponseAsync(uri, method, data);
+                    var response = await GetResponseAsync(uri, method, data, GetCompressionMethod(compression));
                     if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
                         await HandleResponseError(response);
 
@@ -165,9 +165,9 @@ namespace HoneyComb.HTTP
                 });
         }
 
-        protected virtual async Task<T> SendAsync<T>(string uri, Method method, object data = null)
+        protected virtual async Task<T> SendAsync<T>(string uri, Method method, object data = null, CompressionMethod? compression = null)
         {
-            var response = await SendAsync(uri, method, data);
+            var response = await SendAsync(uri, method, data, compression);
             if (!response.IsSuccessStatusCode)
                 return default;
 
@@ -178,9 +178,9 @@ namespace HoneyComb.HTTP
             return JsonConvert.DeserializeObject<T>(stringContent, _jsonSerializerSettings);
         }
 
-        protected virtual async Task<HttpResult<T>> SendResultAsync<T>(string uri, Method method, object data = null)
+        protected virtual async Task<HttpResult<T>> SendResultAsync<T>(string uri, Method method, object data = null, CompressionMethod? compression = null)
         {
-            var response = await SendAsync(uri, method, data);
+            var response = await SendAsync(uri, method, data, compression);
             if (!response.IsSuccessStatusCode)
                 return new HttpResult<T>(default, response);
 
@@ -192,23 +192,22 @@ namespace HoneyComb.HTTP
             return new HttpResult<T>(result, response);
         }
 
-        protected virtual Task<HttpResponseMessage> GetResponseAsync(string uri, Method method, object data = null)
+        protected virtual Task<HttpResponseMessage> GetResponseAsync(string uri, Method method, object data = null, CompressionMethod? compression = null)
         {
             switch (method)
             {
                 case Method.Get:
                     return _httpClient.GetAsync(uri);
                 case Method.Post:
-                    return _httpClient.PostAsync(uri, GetJsonData(data));
+                    return _httpClient.PostAsync(uri, GetJsonData(data, compression));
                 case Method.Put:
-                    return _httpClient.PutAsync(uri, GetJsonData(data));
+                    return _httpClient.PutAsync(uri, GetJsonData(data, compression));
                 case Method.Patch:
-                    return _httpClient.PatchAsync(uri, GetJsonData(data));
+                    return _httpClient.PatchAsync(uri, GetJsonData(data, compression));
                 case Method.Delete:
                     return _httpClient.DeleteAsync(uri);
                 default:
                     throw new InvalidOperationException($"Http method: {method} is not supported");
-
             }
         }
 
@@ -219,9 +218,28 @@ namespace HoneyComb.HTTP
             throw new HttpResponseException(errorResponse, stringResponse, errorResponse.ReasonPhrase);
         }
 
-        protected static StringContent GetJsonData(object data)
+        protected HttpContent GetJsonData(object data, CompressionMethod? compression = null)
         {
-            return data == null ? EmptyJson : new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, ApplicationJsonContentType);
+            if (data is null)
+                return EmptyJson;
+
+            var stringContent = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, ApplicationJsonContentType);
+            if (compression is null)
+                return stringContent;
+
+            return new CompressedHttpContent(stringContent, compression.Value);
+        }
+
+        private CompressionMethod? GetCompressionMethod(CompressionMethod? requestCompression)
+        {
+            // If request compression is null check global configuration
+            if (requestCompression is null)
+            {
+                if (_options.Compression.IsEnabled)
+                    return _options.Compression.Method.ToEnum(CompressionMethod.GZip);
+            }
+
+            return requestCompression;
         }
 
         protected enum Method

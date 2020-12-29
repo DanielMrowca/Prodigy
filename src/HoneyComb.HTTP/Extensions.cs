@@ -29,5 +29,13 @@ namespace HoneyComb.HTTP
             var idsAsStringArray = string.Join("','", array);
             return $"['{idsAsStringArray}']";
         }
+
+        public static TEnum ToEnum<TEnum>(this string value, TEnum defaultValue) where TEnum : struct
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return defaultValue;
+
+            return Enum.TryParse(value, true, out TEnum result) ? result : defaultValue;
+        }
     }
 }
