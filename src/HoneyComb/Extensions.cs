@@ -28,6 +28,12 @@ namespace HoneyComb
             }
         }
 
+        public static IHoneyCombBuilder AddInitializer<T>(this IHoneyCombBuilder builder) where T : class, IInitializer
+        {
+            builder.Services.AddSingleton<IInitializer, T>();
+            return builder;
+        }
+
         private static IHoneyCombBuilder BuildHoneyComb(IServiceCollection services, AppSettings appSettings)
         {
             if (appSettings == null)
