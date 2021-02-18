@@ -214,7 +214,6 @@ namespace HoneyComb.HTTP
         protected virtual async Task HandleResponseError(HttpResponseMessage errorResponse)
         {
             var stringResponse = await errorResponse.Content.ReadAsStringAsync();
-            var exReponse = JsonConvert.DeserializeObject(stringResponse);
             throw new HttpResponseException(errorResponse, stringResponse, errorResponse.ReasonPhrase);
         }
 
@@ -223,7 +222,8 @@ namespace HoneyComb.HTTP
             if (data is null)
                 return EmptyJson;
 
-            var stringContent = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, ApplicationJsonContentType);
+            var json = JsonConvert.SerializeObject(data, _jsonSerializerSettings);
+            var stringContent = new StringContent(json, Encoding.UTF8, ApplicationJsonContentType);
             if (compression is null)
                 return stringContent;
 
