@@ -31,7 +31,7 @@ namespace HoneyComb.WebApi.CQRS
 
         IEndpointDispatcherBuilder Post<T, TResult>(string path,
           Func<T, HttpContext, Task> beforeDispatch = null,
-          Func<T, HttpContext, Task> afterDispatch = null,
+          Func<T, TResult, HttpContext, Task> afterDispatch = null,
           Action<IEndpointConventionBuilder> endpoint = null,
           bool returnResult = true,
           bool auth = false, 
