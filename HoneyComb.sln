@@ -41,7 +41,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.WebApi.Dispatcher
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.Vault", "src\HoneyComb.Vault\HoneyComb.Vault.csproj", "{523328FD-9D9A-47DF-BA75-9213070630E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyComb.RequestDecompression", "src\HoneyComb.RequestDecompression\HoneyComb.RequestDecompression.csproj", "{DA6F66BB-1418-434D-820A-98E20D849752}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.RequestDecompression", "src\HoneyComb.RequestDecompression\HoneyComb.RequestDecompression.csproj", "{DA6F66BB-1418-434D-820A-98E20D849752}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,5 @@
-﻿using HoneyComb.CQRS.Events.Dispatchers;
+﻿using HoneyComb.Attributes;
+using HoneyComb.CQRS.Events.Dispatchers;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -10,7 +11,19 @@ namespace HoneyComb.CQRS.Events
         {
             builder.Services.Scan(s => s
                 .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-                .AddClasses(c => c.AssignableTo(typeof(IEventHandler<>)))
+                .AddClasses(c => 
+                { 
+                    c.AssignableTo(typeof(IEventHandler<>));
+                    c.WithoutAttribute<AutoRegisterAttribute>();
+                })
+                .AsImplementedInterfaces()
+                .WithTransientLifetime()
+
+                .AddClasses(c =>
+                {
+                    c.AssignableTo(typeof(IEventHandler<>));
+                    c.WithAttribute<AutoRegisterAttribute>(x=>x.AutoRegister);
+                })
                 .AsImplementedInterfaces()
                 .WithTransientLifetime());
 

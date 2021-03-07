@@ -1,4 +1,5 @@
-﻿using HoneyComb.CQRS.Queries.Dispatchers;
+﻿using HoneyComb.Attributes;
+using HoneyComb.CQRS.Queries.Dispatchers;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -13,17 +14,18 @@ namespace HoneyComb.CQRS.Queries
                 .AddClasses(c =>
                 {
                     c.AssignableTo(typeof(IQueryHandler<,>));
-                    c.WithoutAttribute<QueryHandlerAttribute>();
+                    c.WithoutAttribute<AutoRegisterAttribute>();
                 })
-                    .AsImplementedInterfaces()
-                    .WithScopedLifetime()
-                .AddClasses(c => 
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+
+                .AddClasses(c =>
                 {
                     c.AssignableTo(typeof(IQueryHandler<,>));
-                    c.WithAttribute<QueryHandlerAttribute>(x=> x.AutoRegister);
+                    c.WithAttribute<AutoRegisterAttribute>(x => x.AutoRegister);
                 })
-                    .AsImplementedInterfaces()
-                    .WithScopedLifetime());
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
 
             return builder;
         }

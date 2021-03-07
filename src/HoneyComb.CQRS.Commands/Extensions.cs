@@ -1,4 +1,5 @@
-﻿using HoneyComb.CQRS.Commands.Dispatchers;
+﻿using HoneyComb.Attributes;
+using HoneyComb.CQRS.Commands.Dispatchers;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -8,13 +9,37 @@ namespace HoneyComb.CQRS.Commands
     {
         public static IHoneyCombBuilder AddCommandHandlers(this IHoneyCombBuilder builder)
         {
-            builder.Services.Scan(s => 
+            builder.Services.Scan(s =>
             s.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-                .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<>)))
+                .AddClasses(c =>
+                {
+                    c.AssignableTo(typeof(ICommandHandler<>));
+                    c.WithoutAttribute<AutoRegisterAttribute>();
+                })
                 .AsImplementedInterfaces()
                 .WithTransientLifetime()
 
-                .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<,>)))
+                .AddClasses(c =>
+                {
+                    c.AssignableTo(typeof(ICommandHandler<>));
+                    c.WithAttribute<AutoRegisterAttribute>(x => x.AutoRegister);
+                })
+                .AsImplementedInterfaces()
+                .WithTransientLifetime()
+
+                .AddClasses(c => 
+                {
+                    c.AssignableTo(typeof(ICommandHandler<,>));
+                    c.WithoutAttribute<AutoRegisterAttribute>();
+                })
+                .AsImplementedInterfaces()
+                .WithTransientLifetime()
+
+                .AddClasses(c =>
+                 {
+                     c.AssignableTo(typeof(ICommandHandler<,>));
+                     c.WithAttribute<AutoRegisterAttribute>(x => x.AutoRegister);
+                 })
                 .AsImplementedInterfaces()
                 .WithTransientLifetime());
 

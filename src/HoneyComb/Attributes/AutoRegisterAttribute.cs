@@ -1,23 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace HoneyComb.CQRS.Queries
+namespace HoneyComb.Attributes
 {
     /// <summary>
-    ///     Query handler attribute
+    ///     Attribute for disable or enable of auto registration to DI container
     /// </summary>
-    public sealed class QueryHandlerAttribute : Attribute
+    public sealed class AutoRegisterAttribute : Attribute
     {
         /// <summary>
         ///     Disable or enable of auto registration to DI container.
-        ///     When using QueryHandler decorator we should set "AutoRegister" to false
         /// </summary>
+        /// <remarks>
+        ///     When using <i>CommandHandler</i>, <i>EventHandler</i> or <i>QueryHandler</i> decorator we should set "AutoRegister" to false
+        /// </remarks>
         public bool AutoRegister { get; private set; }
 
         /// <summary>
         ///     
         /// </summary>
         /// <param name="autoRegister">Disable or enable of auto registration to DI container</param>
-        public QueryHandlerAttribute(bool autoRegister)
+        public AutoRegisterAttribute(bool autoRegister)
         {
             AutoRegister = autoRegister;
         }
