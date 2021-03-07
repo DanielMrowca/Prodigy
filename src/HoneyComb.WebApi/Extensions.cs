@@ -1,7 +1,6 @@
 ﻿using HoneyComb.WebApi.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -156,9 +155,9 @@ namespace HoneyComb.WebApi
                     var values = request.HttpContext.GetRouteData().Values;
                     foreach (var (key, value) in values)
                     {
-                        var field = payload.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
-                            .SingleOrDefault(f => f.Name.ToLowerInvariant().StartsWith($"<{key}>",
-                                StringComparison.InvariantCultureIgnoreCase));
+                        var allFields = payload.GetType().GetTypeInfo().GetAllFields();
+                        var field = allFields.SingleOrDefault(f => 
+                            f.Name.ToLowerInvariant().StartsWith($"<{key}>",StringComparison.InvariantCultureIgnoreCase));
 
                         if (field is null)
                         {
