@@ -213,8 +213,16 @@ namespace HoneyComb.HTTP
 
         protected virtual async Task HandleResponseError(HttpResponseMessage errorResponse)
         {
+            if (errorResponse.StatusCode == HttpStatusCode.Unauthorized)
+                await HandleUnauthorizedRequest(errorResponse);
+
             var stringResponse = await errorResponse.Content.ReadAsStringAsync();
             throw new HttpResponseException(errorResponse, stringResponse, errorResponse.ReasonPhrase);
+        }
+
+        protected virtual Task HandleUnauthorizedRequest(HttpResponseMessage errorResponse)
+        {
+            return Task.CompletedTask;
         }
 
         protected HttpContent GetJsonData(object data, CompressionMethod? compression = null)
