@@ -1,4 +1,5 @@
 ﻿using HoneyComb.HTTP.Exceptions;
+using HoneyComb.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Polly;
@@ -19,11 +20,13 @@ namespace HoneyComb.HTTP
         private static readonly StringContent EmptyJson = new StringContent("{}", Encoding.UTF8, ApplicationJsonContentType);
 
         private readonly JsonSerializerSettings _jsonSerializerSettings;
-        private readonly HttpClient _httpClient;
+        protected readonly HttpClient _httpClient;
         private readonly HttpClientOptions _options;
         private readonly IEnumerable<JsonConverter> _jsonConverters;
+        //private readonly AppSettings _appSettings;
 
-        public HoneyCombHttpClient(HttpClient httpClient, HttpClientOptions options, IEnumerable<JsonConverter> jsonConverters)
+        public HoneyCombHttpClient(HttpClient httpClient, HttpClientOptions options,
+            IEnumerable<JsonConverter> jsonConverters)//, AppSettings appSettings)
         {
             _httpClient = httpClient;
             _options = options;
@@ -33,6 +36,10 @@ namespace HoneyComb.HTTP
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 Converters = jsonConverters?.ToList()
             };
+            //_appSettings = appSettings;
+
+            //var appContext = $"{_appSettings.Name} {_appSettings.Version} ({_appSettings.VersionNumber})";
+            //_httpClient.DefaultRequestHeaders.Add("AppContext", appContext);
         }
 
         public Task<HttpResponseMessage> GetAsync(string uri)
@@ -92,20 +99,33 @@ namespace HoneyComb.HTTP
                .WaitAndRetryAsync(_options.Retries, r => TimeSpan.FromSeconds(3 * r))
                .ExecuteAsync(async () =>
                {
-                   var response = await _httpClient.SendAsync(request);
-
-                   if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
-                       await HandleResponseError(response);
-
-                   if (!response.IsSuccessStatusCode)
-                       return default;
-
-                   var stringContent = await response.Content.ReadAsStringAsync();
-                   if (string.IsNullOrWhiteSpace(stringContent))
-                       return default;
-
-                   return JsonConvert.DeserializeObject<T>(stringContent, _jsonSerializerSettings);
+                   return await HandleSendAsync<T>(request);
                });
+        }
+
+        protected virtual async Task<T> HandleSendAsync<T>(HttpRequestMessage request, bool isRetryAfterUnauthorized = false)
+        {
+            var response = await _httpClient.SendAsync(request);
+
+            // Retry only once on unauthorized request
+            if (response.StatusCode == HttpStatusCode.Unauthorized && !isRetryAfterUnauthorized)
+            {
+                var shouldRetryWithoutThrowException = await HandleUnauthorizedRequest(response);
+                if (shouldRetryWithoutThrowException)
+                    return await HandleSendAsync<T>(request, true);
+            }
+
+            if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+                await HandleResponseError(response);
+
+            if (!response.IsSuccessStatusCode)
+                return default;
+
+            var stringContent = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(stringContent))
+                return default;
+
+            return JsonConvert.DeserializeObject<T>(stringContent, _jsonSerializerSettings);
         }
 
         public Task<HttpResult<T>> SendResultAsync<T>(HttpRequestMessage request)
@@ -114,21 +134,35 @@ namespace HoneyComb.HTTP
               .WaitAndRetryAsync(_options.Retries, r => TimeSpan.FromSeconds(3 * r))
               .ExecuteAsync(async () =>
               {
-                  var response = await _httpClient.SendAsync(request);
-
-                  if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
-                      await HandleResponseError(response);
-
-                  if (!response.IsSuccessStatusCode)
-                      return new HttpResult<T>(default, response);
-
-                  var stringContent = await response.Content.ReadAsStringAsync();
-                  if (string.IsNullOrWhiteSpace(stringContent))
-                      return new HttpResult<T>(default, response);
-
-                  var result = JsonConvert.DeserializeObject<T>(stringContent, _jsonSerializerSettings);
-                  return new HttpResult<T>(result, response);
+                  return await HandleSendResultAsync<T>(request);
               });
+        }
+
+        protected async Task<HttpResult<T>> HandleSendResultAsync<T>(HttpRequestMessage request, bool isRetryAfterUnauthorized = false)
+        {
+            await BeforeSendRequestAsync(_httpClient);
+            var response = await _httpClient.SendAsync(request);
+
+            // Retry only once on unauthorized request
+            if (response.StatusCode == HttpStatusCode.Unauthorized && !isRetryAfterUnauthorized)
+            {
+                var shouldRetryWithoutThrowException = await HandleUnauthorizedRequest(response);
+                if (shouldRetryWithoutThrowException)
+                    return await HandleSendResultAsync<T>(request, true);
+            }
+
+            if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+                await HandleResponseError(response);
+
+            if (!response.IsSuccessStatusCode)
+                return new HttpResult<T>(default, response);
+
+            var stringContent = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(stringContent))
+                return new HttpResult<T>(default, response);
+
+            var result = JsonConvert.DeserializeObject<T>(stringContent, _jsonSerializerSettings);
+            return new HttpResult<T>(result, response);
         }
 
         public void SetHeaders(IDictionary<string, string> headers)
@@ -156,13 +190,30 @@ namespace HoneyComb.HTTP
                 .WaitAndRetryAsync(_options.Retries, r => TimeSpan.FromSeconds(3 * r))
                 .ExecuteAsync(async () =>
                 {
-                    var requestUri = uri.StartsWith("http") ? uri : $"http://{uri}";
-                    var response = await GetResponseAsync(uri, method, data, GetCompressionMethod(compression));
-                    if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
-                        await HandleResponseError(response);
-
-                    return response;
+                    return await HandleSendAsync(uri, method, data, compression);
                 });
+        }
+
+        protected async Task<HttpResponseMessage> HandleSendAsync(string uri, Method method, object data = null, CompressionMethod? compression = null,
+            bool isRetryAfterUnauthorized = false)
+        {
+            await BeforeSendRequestAsync(_httpClient);
+
+            var requestUri = uri.StartsWith("http") ? uri : $"http://{uri}";
+            var response = await GetResponseAsync(uri, method, data, GetCompressionMethod(compression));
+
+            // Retry only once on unauthorized request
+            if (response.StatusCode == HttpStatusCode.Unauthorized && !isRetryAfterUnauthorized)
+            {
+                var shouldRetryWithoutThrowException = await HandleUnauthorizedRequest(response);
+                if (shouldRetryWithoutThrowException)
+                    return await HandleSendAsync(uri, method, data, compression, true);
+            }
+
+            if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+                await HandleResponseError(response);
+
+            return response;
         }
 
         protected virtual async Task<T> SendAsync<T>(string uri, Method method, object data = null, CompressionMethod? compression = null)
@@ -213,14 +264,31 @@ namespace HoneyComb.HTTP
 
         protected virtual async Task HandleResponseError(HttpResponseMessage errorResponse)
         {
-            if (errorResponse.StatusCode == HttpStatusCode.Unauthorized)
-                await HandleUnauthorizedRequest(errorResponse);
-
             var stringResponse = await errorResponse.Content.ReadAsStringAsync();
             throw new HttpResponseException(errorResponse, stringResponse, errorResponse.ReasonPhrase);
         }
 
-        protected virtual Task HandleUnauthorizedRequest(HttpResponseMessage errorResponse)
+        /// <summary>
+        ///     Method for implementing custom action on unathorized request.
+        ///     Best place for handle <i>REFRESH TOKEN</i> and return TRUE after success.
+        /// </summary>
+        /// <remarks>
+        ///     If this method return <i>TRUE</i> executing of current http request will be retry.
+        /// </remarks>
+        /// <param name="errorResponse"></param>
+        /// <returns></returns>
+        protected virtual Task<bool> HandleUnauthorizedRequest(HttpResponseMessage errorResponse)
+        {
+            return Task.FromResult(false);
+        }
+
+        /// <summary>
+        ///     This method is executing before every http request. You can implement here setting access token or 
+        ///     other extra data to httpClient
+        /// </summary>
+        /// <param name="httpClient"></param>
+        /// <returns></returns>
+        protected virtual Task BeforeSendRequestAsync(HttpClient httpClient)
         {
             return Task.CompletedTask;
         }
