@@ -1,10 +1,8 @@
-﻿using HoneyComb.Logging.Extensions;
-using HoneyComb.Logging.Settings;
+﻿using HoneyComb.Logging.Settings;
 using HoneyComb.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using System;
