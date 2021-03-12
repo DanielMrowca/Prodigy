@@ -23,10 +23,10 @@ namespace HoneyComb.HTTP
         protected readonly HttpClient _httpClient;
         private readonly HttpClientOptions _options;
         private readonly IEnumerable<JsonConverter> _jsonConverters;
-        //private readonly AppSettings _appSettings;
+        private readonly AppSettings _appSettings;
 
         public HoneyCombHttpClient(HttpClient httpClient, HttpClientOptions options,
-            IEnumerable<JsonConverter> jsonConverters)//, AppSettings appSettings)
+            IEnumerable<JsonConverter> jsonConverters, AppSettings appSettings)
         {
             _httpClient = httpClient;
             _options = options;
@@ -36,10 +36,10 @@ namespace HoneyComb.HTTP
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 Converters = jsonConverters?.ToList()
             };
-            //_appSettings = appSettings;
+            _appSettings = appSettings;
 
-            //var appContext = $"{_appSettings.Name} {_appSettings.Version} ({_appSettings.VersionNumber})";
-            //_httpClient.DefaultRequestHeaders.Add("AppContext", appContext);
+            var appContext = $"{_appSettings.Name} {_appSettings.Version} ({_appSettings.VersionNumber})";
+            _httpClient.DefaultRequestHeaders.Add("AppContext", appContext);
         }
 
         public Task<HttpResponseMessage> GetAsync(string uri)
