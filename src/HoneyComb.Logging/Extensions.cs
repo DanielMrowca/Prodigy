@@ -1,4 +1,5 @@
-﻿using HoneyComb.Logging.Settings;
+﻿using HoneyComb.Logging.Extensions;
+using HoneyComb.Logging.Settings;
 using HoneyComb.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -44,6 +45,12 @@ namespace HoneyComb.Logging
             if (loggerSettings.UseCustomRequestLogging)
                 app.UseSerilogRequestLogging(opt =>
                 {
+                    opt.EnrichDiagnosticContext = (diagContext, httpContext) =>
+                    {
+                        diagContext.SetHeaderValue(httpContext, "AppContext");
+                        diagContext.SetHeaderValue(httpContext, "DeviceId");
+                    };
+
                     opt.GetLevel = (httpContext, elapsedMs, ex) =>
                     {
                         return LogEventLevel.Debug;
