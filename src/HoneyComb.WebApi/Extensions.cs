@@ -156,7 +156,7 @@ namespace HoneyComb.WebApi
                     foreach (var (key, value) in values)
                     {
                         var allFields = payload.GetType().GetTypeInfo().GetAllFields();
-                        var field = allFields.SingleOrDefault(f => 
+                        var field = allFields.FirstOrDefault(f => 
                             f.Name.ToLowerInvariant().StartsWith($"<{key}>",StringComparison.InvariantCultureIgnoreCase));
 
                         if (field is null)
