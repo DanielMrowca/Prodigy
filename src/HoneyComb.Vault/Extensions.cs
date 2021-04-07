@@ -58,11 +58,10 @@ namespace HoneyComb.Vault
         {
             var logger = Logging.Extensions.BuildLoggerConfiguration().CreateLogger();
             var kvPath = string.IsNullOrWhiteSpace(keyValuePath) ? options.Kv?.Path : keyValuePath;
-            var (client, _) = GetClientAndSettings(options);
             if (!string.IsNullOrWhiteSpace(kvPath) && options.Kv.Enabled)
             {
                 logger.Information($"Loading settings from Vault: '{options.Url}', KV path: '{kvPath}'.");
-                var keyValueSecrets = new KeyValueSecret(client, options);
+                
                 IDictionary<string, object> secret = new Dictionary<string, object>();
 
                 if (retryOnError)
@@ -70,7 +69,12 @@ namespace HoneyComb.Vault
                     var policyResult = await Policy
                         .Handle<Exception>()
                         .WaitAndRetryForeverAsync((r, e, ctx) => TimeSpan.FromSeconds(3 * r), OnRetryException)
-                        .ExecuteAndCaptureAsync(async () => await keyValueSecrets.GetAsync(kvPath));
+                        .ExecuteAndCaptureAsync(async () => 
+                        {
+                            var (client, _) = GetClientAndSettings(options);
+                            var keyValueSecrets = new KeyValueSecret(client, options);
+                            return await keyValueSecrets.GetAsync(kvPath);
+                        });
 
                     secret = policyResult.Result;
                     Task OnRetryException(Exception ex, int r, TimeSpan ts, Context ctx)
@@ -80,7 +84,12 @@ namespace HoneyComb.Vault
                     }
                 }
                 else
+                {
+                    var (client, _) = GetClientAndSettings(options);
+                    var keyValueSecrets = new KeyValueSecret(client, options);
                     secret = await keyValueSecrets.GetAsync(kvPath);
+                }
+                    
 
                 var parser = new JsonParser();
                 var data = parser.Parse(JObject.FromObject(secret));
