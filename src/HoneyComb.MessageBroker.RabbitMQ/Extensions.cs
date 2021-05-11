@@ -21,16 +21,20 @@ namespace HoneyComb.MessageBroker.RabbitMQ
         public static IHoneyCombBuilder AddRabbitMQ(this IHoneyCombBuilder builder, RabbitMqOptions options, IJsonSerializer jsonSerializer = null,
             IConventionBuilder conventionBuilder = null, IRabbitQueuePrefixProvider rabbitQueueIdentifierProvider = null, int retriesCountOnConnectingFailed = -1)
         {
-            if (jsonSerializer is null)
+            var jsonSerializerIsRegistered = builder.Services.Any(x => x.ServiceType == typeof(IJsonSerializer));
+            if (!jsonSerializerIsRegistered)
             {
-                var factory = new Open.Serialization.Json.Newtonsoft.JsonSerializerFactory(new JsonSerializerSettings
+                if(jsonSerializer is null)
                 {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                    NullValueHandling = NullValueHandling.Ignore
-                });
-                jsonSerializer = factory.GetSerializer();
+                    var factory = new Open.Serialization.Json.Newtonsoft.JsonSerializerFactory(new JsonSerializerSettings
+                    {
+                        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                        NullValueHandling = NullValueHandling.Ignore
+                    });
+                    jsonSerializer = factory.GetSerializer();
+                }
+                builder.Services.AddSingleton(jsonSerializer);
             }
-
 
             var queueIdentIsRegistered = builder.Services.Any(x => x.ServiceType == typeof(IRabbitQueuePrefixProvider));
             if (!queueIdentIsRegistered)
@@ -41,8 +45,6 @@ namespace HoneyComb.MessageBroker.RabbitMQ
                     builder.Services.AddSingleton(rabbitQueueIdentifierProvider);
             }
 
-
-            builder.Services.AddSingleton(jsonSerializer);
             builder.Services.AddSingleton(options);
             builder.Services.AddSingleton<IConventionBuilder, UnderscoreCaseConventionBuilder>();
 

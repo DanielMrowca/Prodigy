@@ -32,14 +32,13 @@ namespace HoneyComb.WebApi
         public static IHoneyCombBuilder AddWebApi(this IHoneyCombBuilder builder, Action<IMvcCoreBuilder> configureMvc = null,
             IJsonSerializer jsonSerializer = null)
         {
-            if (jsonSerializer is null)
+            var jsonSerializerIsRegistered = builder.Services.Any(x => x.ServiceType == typeof(IJsonSerializer));
+            if (!jsonSerializerIsRegistered)
             {
-                var factory = new Open.Serialization.Json.Newtonsoft.JsonSerializerFactory(new JsonSerializerSettings
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                    Converters = { new StringEnumConverter(true) }
-                });
-                jsonSerializer = factory.GetSerializer();
+                if (jsonSerializer is null)
+                    jsonSerializer = GetDefaultJsonSerializer();
+
+                builder.Services.AddSingleton(jsonSerializer);
             }
 
             builder.Services.AddSingleton(jsonSerializer);
@@ -62,12 +61,20 @@ namespace HoneyComb.WebApi
             return builder;
         }
 
+       
         public static IHoneyCombBuilder AddErrorHandler<T>(this IHoneyCombBuilder builder) where T : class, IExceptionToResponseMapper
         {
             builder.Services.AddTransient<ErrorHandlerMiddleware>();
             builder.Services.AddTransient<IExceptionToResponseMapper, T>();
             return builder;
         }
+
+        public static IHoneyCombBuilder AddDefaultJsonSerializer(this IHoneyCombBuilder builder) 
+        {
+            builder.Services.AddSingleton(GetDefaultJsonSerializer());
+            return builder;
+        }
+
 
         public static IApplicationBuilder UseErrorHandler(this IApplicationBuilder builder)
         {
@@ -80,6 +87,16 @@ namespace HoneyComb.WebApi
             appBuilder.UseRouting();
             appBuilder.UseEndpoints(router => builder?.Invoke(new EndpointBuilder(router)));
             return appBuilder;
+        }
+
+        public static IJsonSerializer GetDefaultJsonSerializer()
+        {
+            var factory = new Open.Serialization.Json.Newtonsoft.JsonSerializerFactory(new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Converters = { new StringEnumConverter(true) }
+            });
+            return factory.GetSerializer();
         }
 
         public static async Task<T> ReadQueryAsync<T>(this HttpContext context) where T : class
