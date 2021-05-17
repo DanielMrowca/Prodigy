@@ -20,6 +20,14 @@ namespace HoneyComb.CQRS.Commands.Dispatchers
             await handler.HandleAsync(command);
         }
 
+        public async Task SendAsync(ICommand command)
+        {
+            using var scope = _serviceFactory.CreateScope();
+            var handlerType = typeof(ICommandHandler<>).MakeGenericType(command.GetType());
+            var handler = scope.ServiceProvider.GetRequiredService(handlerType);
+            await (Task)handler.GetType().GetMethod("HandleAsync")?.Invoke(handler, new[] { command });
+        }
+
         public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command)
         {
             using var scope = _serviceFactory.CreateScope();
@@ -33,5 +41,7 @@ namespace HoneyComb.CQRS.Commands.Dispatchers
             //dynamic handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<TCommand, TResult>>();
             //return await handler.HandleAsync(command);
         }
+
+       
     }
 }
