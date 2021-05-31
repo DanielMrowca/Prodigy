@@ -11,7 +11,7 @@ namespace HoneyComb.MongoDB.Transactions
 {
     public class MongoTransaction : IMongoTransaction, ITransaction
     {
-        // Every command will be stored here and it'll be processed at SaveChanges
+        // Every command will be stored here and it'll be processed at CommitTransactionAsync
         private readonly List<Func<Task>> _commands = new List<Func<Task>>();
         private readonly IMongoClient _mongoClient;
 
