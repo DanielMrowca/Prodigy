@@ -1,4 +1,5 @@
-﻿using HoneyComb.MongoDB.Repositories;
+﻿using HoneyComb.MongoDB.Contexts;
+using HoneyComb.MongoDB.Repositories;
 using HoneyComb.Types;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -15,10 +16,10 @@ namespace HoneyComb.MongoDB
         private readonly ISequentialIndexCache _cache;
         public string CollectionName { get; private set; }
 
-        public SequentialIndexProvider(IMongoDatabase mongoDatabase, string collectionName, ISequentialIndexCache cache)
+        public SequentialIndexProvider(IMongoContext mongoContext, string collectionName, ISequentialIndexCache cache)
         {
             CollectionName = collectionName;
-            _repository = new MongoRepository<TDocument, TKey>(mongoDatabase, collectionName);
+            _repository = new MongoRepository<TDocument, TKey>(mongoContext, collectionName);
             _cache = cache;
         }
 

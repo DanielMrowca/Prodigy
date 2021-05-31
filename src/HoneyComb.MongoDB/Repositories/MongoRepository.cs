@@ -7,17 +7,21 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver.Linq;
 using System.Linq;
+using HoneyComb.MongoDB.Contexts;
 
 namespace HoneyComb.MongoDB.Repositories
 {
     public class MongoRepository<TEntity, TKey> : IMongoRepository<TEntity, TKey>
         where TEntity : IIdentifiable<TKey>
     {
+        private readonly IMongoContext _context;
+
         public IMongoCollection<TEntity> Collection { get; }
 
-        public MongoRepository(IMongoDatabase database, string collectionName)
+        public MongoRepository(IMongoContext context, string collectionName)
         {
-            Collection = database.GetCollection<TEntity>(collectionName);
+            _context = context;
+            Collection = context.GetCollection<TEntity>(collectionName);
         }
 
         public async Task<IReadOnlyList<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
@@ -37,21 +41,41 @@ namespace HoneyComb.MongoDB.Repositories
             => await Collection.AsQueryable().Where(predicate).PaginateAsync<TEntity, TKey>(query);
 
 
-        public async Task<TEntity> AddAsync(TEntity entity)
+        public virtual async Task<TEntity> AddAsync(TEntity entity)
         {
-            await Collection.InsertOneAsync(entity);
+            if (_context.IsActiveTransaction)
+                _context.Transaction.AddTransactionCommand(() => Collection.InsertOneAsync(entity));
+            else
+                await Collection.InsertOneAsync(entity);
+
             return entity;
         }
 
-        public async Task UpdateAsync(TEntity entity)
-            => await Collection.ReplaceOneAsync(x => x.Id.Equals(entity.Id), entity);
-
-        public async Task DeleteAsync(TKey id)
-            => await Collection.DeleteOneAsync(x => x.Id.Equals(id));
-
-        public async Task<IList<TEntity>> AddMultipleAsync(IList<TEntity> entities)
+        public virtual async Task UpdateAsync(TEntity entity)
         {
-            await Collection.InsertManyAsync(entities.ToList());
+            if (_context.IsActiveTransaction)
+                _context.Transaction.AddTransactionCommand(() => Collection.ReplaceOneAsync(x => x.Id.Equals(entity.Id), entity));
+            else
+                await Collection.ReplaceOneAsync(x => x.Id.Equals(entity.Id), entity);
+        }
+            
+
+        public virtual async Task DeleteAsync(TKey id)
+        {
+            if (_context.IsActiveTransaction)
+                _context.Transaction.AddTransactionCommand(() => Collection.DeleteOneAsync(x => x.Id.Equals(id)));
+            else
+                await Collection.DeleteOneAsync(x => x.Id.Equals(id));
+        }
+            
+
+        public virtual async Task<IList<TEntity>> AddMultipleAsync(IList<TEntity> entities)
+        {
+            if (_context.IsActiveTransaction)
+                _context.Transaction.AddTransactionCommand(() => Collection.InsertManyAsync(entities.ToList()));
+            else
+                await Collection.InsertManyAsync(entities.ToList());
+
             return entities;
         }
     }

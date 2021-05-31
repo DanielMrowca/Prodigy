@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HoneyComb.CQRS.Queries\HoneyComb.CQRS.Queries.csproj" />
+    <ProjectReference Include="..\HoneyComb.Repositories\HoneyComb.Repositories.csproj" />
     <ProjectReference Include="..\HoneyComb\HoneyComb.csproj" />
   </ItemGroup>
 

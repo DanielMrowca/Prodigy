@@ -1,5 +1,8 @@
-﻿using HoneyComb.MongoDB.Initializers;
+﻿using HoneyComb.MongoDB.Contexts;
+using HoneyComb.MongoDB.Initializers;
 using HoneyComb.MongoDB.Repositories;
+using HoneyComb.MongoDB.Transactions;
+using HoneyComb.Repositories;
 using HoneyComb.Types;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
@@ -19,12 +22,15 @@ namespace HoneyComb.MongoDB
                 return new MongoClient(options.ConnectionString);
             });
 
-            builder.Services.AddTransient(sp =>
+            builder.Services.AddScoped(sp =>
             {
                 var options = sp.GetService<MongoDbOptions>();
                 var client = sp.GetService<IMongoClient>();
                 return client.GetDatabase(options.Database);
             });
+
+            // Required for transactional mongo repository
+            builder.AddMongoContext();
 
             return builder;
         }
@@ -47,15 +53,15 @@ namespace HoneyComb.MongoDB
             {
                 builder.Services.AddSingleton<IInitializer>(sp =>
                 {
-                    var db = sp.GetService<IMongoDatabase>();
+                    var db = sp.CreateScope().ServiceProvider.GetService<IMongoDatabase>();
                     return new MongoIndexesInitializer<TEntity, TKey>(db, collectionName, indexes);
                 });
             }
 
-            builder.Services.AddTransient<IMongoRepository<TEntity, TKey>>(sp =>
+            builder.Services.AddScoped<IMongoRepository<TEntity, TKey>>(sp =>
             {
-                var db = sp.GetService<IMongoDatabase>();
-                return new MongoRepository<TEntity, TKey>(db, collectionName);
+                var context = sp.GetService<IMongoContext>();
+                return new MongoRepository<TEntity, TKey>(context, collectionName);
             });
 
             return builder;
@@ -67,16 +73,26 @@ namespace HoneyComb.MongoDB
         {
             builder.AddMongoRepository<TDocument, TKey>(collectionName, indexBuilder);
             builder.Services.Decorate<IMongoRepository<TDocument, TKey>, MongoRepositoryWithSequentialIndexDecorator<TDocument, TKey>>();
-            builder.Services.AddSingleton<ISequentialIndexCache>(new SequentialIndexCache());
-            builder.Services.AddSingleton<ISequentialIndexProvider<TDocument, TKey>>(sp =>
+            builder.Services.AddSingleton<ISequentialIndexCache, SequentialIndexCache>();
+            builder.Services.AddScoped<ISequentialIndexProvider<TDocument, TKey>>(sp =>
             {
-                var db = sp.GetService<IMongoDatabase>();
+                var db = sp.GetService<IMongoContext>();
                 var cache = sp.GetService<ISequentialIndexCache>();
                 return new SequentialIndexProvider<TDocument, TKey>(db, collectionName, cache);
             });
 
             builder.Services.AddSingleton<IInitializer>(sp => sp.GetService<ISequentialIndexProvider<TDocument, TKey>>());
             return builder;
+        }
+
+        private static void AddMongoContext(this IHoneyCombBuilder builder)
+        {
+            var sp = builder.Services.BuildServiceProvider();
+
+            var mongoContext = new MongoTransactionalContext(sp.GetRequiredService<IMongoDatabase>(), sp.GetRequiredService<IMongoClient>());
+
+            builder.Services.AddScoped<IMongoContext>(sp => mongoContext);
+            builder.Services.AddScoped<ITransactionScope>(sp => mongoContext);
         }
     }
 }

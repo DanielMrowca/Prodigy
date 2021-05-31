@@ -43,6 +43,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.Vault", "src\Hone
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.RequestDecompression", "src\HoneyComb.RequestDecompression\HoneyComb.RequestDecompression.csproj", "{DA6F66BB-1418-434D-820A-98E20D849752}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HoneyComb.Repositories", "src\HoneyComb.Repositories\HoneyComb.Repositories.csproj", "{45B6C051-EE11-4533-A29B-721A6E4174FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{DA6F66BB-1418-434D-820A-98E20D849752}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA6F66BB-1418-434D-820A-98E20D849752}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA6F66BB-1418-434D-820A-98E20D849752}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45B6C051-EE11-4533-A29B-721A6E4174FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45B6C051-EE11-4533-A29B-721A6E4174FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45B6C051-EE11-4533-A29B-721A6E4174FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45B6C051-EE11-4533-A29B-721A6E4174FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
