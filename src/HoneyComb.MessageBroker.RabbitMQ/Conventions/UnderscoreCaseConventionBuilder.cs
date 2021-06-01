@@ -64,7 +64,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
         public bool GetMultiThread(Type type)
         {
             var attribute = GetAttribute(type);
-            return attribute is null ? false : attribute.MultiThread;
+            return attribute?.MultiThread ?? _options.MultiThread;
         }
 
         public bool? GetAutoAck(Type type)
@@ -76,7 +76,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
         public bool? GetAckOnError(Type type)
         {
             var attribute = GetAttribute(type);
-            return attribute?.AckOnError ?? _options.AckOnError;
+            return attribute?.RequeueOnError ?? _options.RequeueOnError;
         }
 
         private static string ToUnderscoreCase(string str)
@@ -87,6 +87,6 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
 
         private static MessageAttribute GetAttribute(MemberInfo type) => type.GetCustomAttribute<MessageAttribute>();
 
-        
+
     }
 }

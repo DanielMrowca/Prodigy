@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HoneyComb.MessageBroker
 {
@@ -14,17 +15,19 @@ namespace HoneyComb.MessageBroker
         /// <summary>
         ///     Define if current queue/channel should be handled parallel
         /// </summary>
-        public bool MultiThread { get; }
+        public bool? MultiThread { get;  }
 
         /// <summary>
         ///     AutoAck set to TRUE improve performance --> Messages are not queued
+        ///     <para><b>IMPORTANT! When AutoAck=true, then RequeueOnError is NOT WORKING! You lose message delivery guarantee!</b></para>
         /// </summary>
         public bool? AutoAck { get; }
 
         /// <summary>
-        ///     AckOnError set to FALSE causes no acknowledgment of the message in case of error
+        ///     RequeueOnError set to TRUE causes requeue specified message on error
         /// </summary>
-        public bool? AckOnError { get; }
+        public bool? RequeueOnError { get;  }
+
 
         /// <summary>
         ///     Message attribute for message broker
@@ -35,9 +38,13 @@ namespace HoneyComb.MessageBroker
         /// <param name="external"></param>
         /// <param name="exchangeType"></param>
         /// <param name="queuePrefix"></param>
+        /// <param name="multiThread">Define if current queue/channel should be handled parallel</param>
         /// <param name="autoAck">AutoAck set to TRUE improve performance --> Messages are not queued</param>
+        /// <param name="ackOnError">RequeueOnError set to TRUE causes requeue specified message on error</param>
         public MessageAttribute(string exchange = null, string routingKey = null, string queue = null,
-            bool external = false, string exchangeType = "topic", string queuePrefix = null, bool multiThread = false, bool autoAck = false, bool ackOnError = true)
+            bool external = false, string exchangeType = "topic", string queuePrefix = null, 
+            TriState multiThread = TriState.None, TriState autoAck = TriState.None,
+            TriState ackOnError = TriState.None)
         {
             Exchange = exchange;
             RoutingKey = routingKey;
@@ -45,9 +52,11 @@ namespace HoneyComb.MessageBroker
             External = external;
             ExchangeType = exchangeType;
             QueuePrefix = queuePrefix;
-            MultiThread = multiThread;
-            AutoAck = autoAck;
-            AckOnError = ackOnError;
+
+            // We can't use bool? because is a struct and struct is not allowed to be as parameter to an attribute
+            MultiThread = multiThread.ToBool();
+            AutoAck = autoAck.ToBool();
+            RequeueOnError = ackOnError.ToBool();
         }
     }
 }

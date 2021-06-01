@@ -11,7 +11,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
         public string QueuePrefix { get; }
         public bool MultiThread { get; }
         public bool? AutoAck { get; }
-        public bool? AckOnError { get; }
+        public bool? RequeueError { get; }
 
         public Convention(
             Type type, 
@@ -30,7 +30,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Conventions
             QueuePrefix = queuePrefix;
             MultiThread = multiThread;
             AutoAck = autoAck;
-            AckOnError = ackOnError;
+            RequeueError = ackOnError;
         }
     }
 }

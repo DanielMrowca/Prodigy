@@ -48,14 +48,17 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
 
             var channel = _connection.CreateModel();
             if (!Channels.TryAdd(channelKey, new ChannelInfo(channel, convention)))
+            {
+                channel.Dispose();
                 return this;
+            }
 
             _logger.LogTrace($"Created a channel: {channel.ChannelNumber}");
             var durable = _options.Queue?.Durable ?? true;
             var exclusive = _options.Queue?.Exclusive ?? false;
             var autoDelete = _options.Queue?.AutoDelete ?? false;
             var autoAck = convention.AutoAck.HasValue ? convention.AutoAck.Value : _options.AutoAck;
-            var ackOnError = convention.AckOnError.HasValue ? convention.AckOnError.Value : _options.AckOnError;
+            var requeueOnError = convention.RequeueError.HasValue ? convention.RequeueError.Value : _options.RequeueOnError;
 
             channel.QueueDeclare(convention.Queue, durable, exclusive, autoDelete);
             channel.QueueBind(convention.Queue, convention.Exchange, convention.RoutingKey);
@@ -64,9 +67,9 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             var consumer = new AsyncEventingBasicConsumer(channel);
 
             if (convention.MultiThread)
-                consumer.Received += (sender, args) => Task.Factory.StartNew(() => ReceivedMessage(channel, sender, args, handle, autoAck, ackOnError));
+                consumer.Received += (sender, args) => Task.Factory.StartNew(() => ReceivedMessage(channel, sender, args, handle, autoAck, requeueOnError));
             else
-                consumer.Received += (sender, args) => ReceivedMessage(channel, sender, args, handle, autoAck, ackOnError);
+                consumer.Received += (sender, args) => ReceivedMessage(channel, sender, args, handle, autoAck, requeueOnError);
 
             channel.BasicConsume(convention.Queue, autoAck, consumer);
             return this;
@@ -79,7 +82,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             BasicDeliverEventArgs args,
             Func<IServiceProvider, T, object, Task> handle,
             bool autoAck,
-            bool ackOnError)
+            bool requeueOnError)
         {
             try
             {
@@ -98,8 +101,10 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                if (ackOnError && !autoAck)
-                    channel.BasicAck(args.DeliveryTag, false);
+                if (!autoAck)
+                    channel.BasicReject(args.DeliveryTag, requeueOnError);
+
+                await Task.Yield();
                 throw;
             }
         }

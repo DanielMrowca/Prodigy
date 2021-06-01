@@ -35,7 +35,8 @@ namespace HoneyComb.MessageBroker.RabbitMQ
         public string SpanContextHeader { get; set; }
         public int MaxProducerChannels { get; set; }
         public bool AutoAck { get; set; }
-        public bool AckOnError { get; set; } = true;
+        public bool RequeueOnError { get; set; }
+        public bool MultiThread { get; set; }
 
         public class LoggerOptions
         {
