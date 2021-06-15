@@ -28,8 +28,8 @@ namespace HoneyComb.MessageBroker.CQRS
         {
             return busSubscriber.Subscribe<T>((sp, @event, ctx) =>
             {
-                var commandHandler = sp.GetRequiredService<IEventHandler<T>>();
-                return commandHandler.HandleAsync(@event);
+                var eventDispatcher = sp.GetRequiredService<IEventDispatcher>();
+                return eventDispatcher.SendAsync(@event);
             });
         }
 
