@@ -69,7 +69,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Subscribers
             if (convention.MultiThread)
                 consumer.Received += (sender, args) => Task.Factory.StartNew(() => ReceivedMessage(channel, sender, args, handle, autoAck, requeueOnError));
             else
-                consumer.Received += (sender, args) => ReceivedMessage(channel, sender, args, handle, autoAck, requeueOnError);
+                consumer.Received += async (sender, args) => await ReceivedMessage(channel, sender, args, handle, autoAck, requeueOnError);
 
             channel.BasicConsume(convention.Queue, autoAck, consumer);
             return this;

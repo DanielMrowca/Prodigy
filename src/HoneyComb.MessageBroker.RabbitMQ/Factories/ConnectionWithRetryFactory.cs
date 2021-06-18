@@ -18,11 +18,11 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Factories
         private readonly RabbitMqOptions _options;
         private readonly IHoneyCombBuilder _honeyCombBuilder;
 
-
         public ConnectionWithRetryFactory(ConnectionFactory connectionFactory,
             RabbitMqOptions options, IHoneyCombBuilder honeyCombBuilder)
         {
             _connectionFactory = connectionFactory;
+            _connectionFactory.ConsumerDispatchConcurrency = options.ConsumerDispatchConcurrency;
             _options = options;
             _honeyCombBuilder = honeyCombBuilder;
         }
@@ -31,7 +31,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ.Factories
         {
             lock (_lock)
             {
-                if (_connection != null )
+                if (_connection != null)
                     return _connection;
 
                 var logger = _honeyCombBuilder.Services.BuildServiceProvider().GetRequiredService<ILogger<ConnectionWithRetryFactory>>();

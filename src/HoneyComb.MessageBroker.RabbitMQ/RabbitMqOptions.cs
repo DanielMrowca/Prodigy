@@ -37,6 +37,7 @@ namespace HoneyComb.MessageBroker.RabbitMQ
         public bool AutoAck { get; set; }
         public bool RequeueOnError { get; set; }
         public bool MultiThread { get; set; }
+        public int ConsumerDispatchConcurrency { get; set; } = 1;
 
         public class LoggerOptions
         {
