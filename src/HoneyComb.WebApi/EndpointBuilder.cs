@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using HoneyComb.WebApi.ModelBinding;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace HoneyComb.WebApi
@@ -11,10 +13,12 @@ namespace HoneyComb.WebApi
     public class EndpointBuilder : IEndpointBuilder
     {
         private readonly IEndpointRouteBuilder _routeBuilder;
+        private readonly IModelBinderProvider _modelBinderProvider;
 
-        public EndpointBuilder(IEndpointRouteBuilder routeBuilder)
+        public EndpointBuilder(IEndpointRouteBuilder routeBuilder, IModelBinderProvider modelBinderProvider)
         {
             _routeBuilder = routeBuilder;
+            _modelBinderProvider = modelBinderProvider ?? throw new ArgumentNullException(nameof(modelBinderProvider));
         }
 
         public IEndpointBuilder Get(string path, Func<HttpContext, Task> context = null,
@@ -140,14 +144,16 @@ namespace HoneyComb.WebApi
             }
         }
 
-        private static async Task BuildRequestContext<T>(HttpContext httpContext, Func<T, HttpContext, Task> context = null)
+        private async Task BuildRequestContext<T>(HttpContext httpContext, Func<T, HttpContext, Task> context = null)
             where T : class
         {
-            var request = await httpContext.ReadJsonAsync<T>();
-            if (request is null || context is null)
+            var modelBinder = _modelBinderProvider.GetModelBinder(httpContext);
+            var model = await modelBinder.BindModelAsync<T>(httpContext);
+            
+            if (model is null || context is null)
                 return;
 
-            await context.Invoke(request, httpContext);
+            await context.Invoke(model, httpContext);
         }
 
         private static async Task BuildQueryContext<T>(HttpContext httpContext, Func<T, HttpContext, Task> context = null)

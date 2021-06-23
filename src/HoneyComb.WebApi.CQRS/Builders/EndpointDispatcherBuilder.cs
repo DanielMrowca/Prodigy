@@ -1,5 +1,7 @@
 ﻿using HoneyComb.CQRS.Commands;
 using HoneyComb.CQRS.Queries;
+using HoneyComb.WebApi.ContentResults;
+using HoneyComb.WebApi.ModelBinding;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,10 +13,12 @@ namespace HoneyComb.WebApi.CQRS.Builders
     public class EndpointDispatcherBuilder : IEndpointDispatcherBuilder
     {
         private readonly IEndpointBuilder _builder;
+        private readonly IHttpResponseContentResultProvider _httpResponseContentResultProvider;
 
-        public EndpointDispatcherBuilder(IEndpointBuilder builder)
+        public EndpointDispatcherBuilder(IEndpointBuilder builder, IHttpResponseContentResultProvider httpResponseContentResultProvider)
         {
             _builder = builder ?? throw new ArgumentNullException(nameof(builder));
+            _httpResponseContentResultProvider = httpResponseContentResultProvider ?? throw new ArgumentNullException(nameof(httpResponseContentResultProvider));
         }
 
         public IEndpointDispatcherBuilder Get(string path, Func<HttpContext, Task> context = null,
@@ -47,8 +51,8 @@ namespace HoneyComb.WebApi.CQRS.Builders
                          return;
                      }
 
-
-                     await ctx.Response.WriteJsonAsync(result);
+                     var responseContent = _httpResponseContentResultProvider.GetResponseContentResult(result);
+                     await responseContent.WriteContentAsync(ctx);
                      return;
                  }
 
@@ -96,10 +100,10 @@ namespace HoneyComb.WebApi.CQRS.Builders
             return this;
         }
 
-        IEndpointDispatcherBuilder IEndpointDispatcherBuilder.Put<T>(string path,
+        public IEndpointDispatcherBuilder Put<T>(string path,
             Func<T, HttpContext, Task> beforeDispatch,
             Func<T, HttpContext, Task> afterDispatch,
-            Action<IEndpointConventionBuilder> endpoint, bool auth, string roles, params string[] policies)
+            Action<IEndpointConventionBuilder> endpoint, bool auth, string roles, params string[] policies) where T : class, ICommand
         {
             _builder.Put<T>(path, (cmd, ctx) => BuildCommandContext(cmd, ctx, beforeDispatch, afterDispatch), endpoint, auth, roles, policies);
             return this;
@@ -142,7 +146,7 @@ namespace HoneyComb.WebApi.CQRS.Builders
         }
 
 
-        private static async Task BuildCommandContext<T, TResult>(T command,
+        private async Task BuildCommandContext<T, TResult>(T command,
             HttpContext context,
             bool returnResult = true,
             Func<T, HttpContext, Task> beforeDispatch = null,
@@ -160,7 +164,8 @@ namespace HoneyComb.WebApi.CQRS.Builders
 
                 if (result != null && returnResult)
                 {
-                    await context.Response.WriteJsonAsync(result);
+                    var responseContent = _httpResponseContentResultProvider.GetResponseContentResult(result);
+                    await responseContent.WriteContentAsync(context);
                     return;
                 }
             }

@@ -1,6 +1,8 @@
 ﻿using HoneyComb.WebApi.Exceptions;
+using HoneyComb.WebApi.ModelBinding;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -61,7 +63,7 @@ namespace HoneyComb.WebApi
             return builder;
         }
 
-       
+
         public static IHoneyCombBuilder AddErrorHandler<T>(this IHoneyCombBuilder builder) where T : class, IExceptionToResponseMapper
         {
             builder.Services.AddTransient<ErrorHandlerMiddleware>();
@@ -69,7 +71,7 @@ namespace HoneyComb.WebApi
             return builder;
         }
 
-        public static IHoneyCombBuilder AddDefaultJsonSerializer(this IHoneyCombBuilder builder) 
+        public static IHoneyCombBuilder AddDefaultJsonSerializer(this IHoneyCombBuilder builder)
         {
             builder.Services.AddSingleton(GetDefaultJsonSerializer());
             return builder;
@@ -85,7 +87,7 @@ namespace HoneyComb.WebApi
         public static IApplicationBuilder UseEndpoints(this IApplicationBuilder appBuilder, Action<IEndpointBuilder> builder)
         {
             appBuilder.UseRouting();
-            appBuilder.UseEndpoints(router => builder?.Invoke(new EndpointBuilder(router)));
+            appBuilder.UseEndpoints(router => builder?.Invoke(new EndpointBuilder(router, new DefaultModelBinderProvider())));
             return appBuilder;
         }
 
@@ -165,7 +167,7 @@ namespace HoneyComb.WebApi
 
                 if (payload == null)
                     payload = serializer.Deserialize<T>(data);
-                
+
                 if (_bindRequestFromRoute && HasRouteData(request) && payload != null)
                 {
                     //Pobiera parametry z URL
@@ -173,8 +175,8 @@ namespace HoneyComb.WebApi
                     foreach (var (key, value) in values)
                     {
                         var allFields = payload.GetType().GetTypeInfo().GetAllFields();
-                        var field = allFields.FirstOrDefault(f => 
-                            f.Name.ToLowerInvariant().StartsWith($"<{key}>",StringComparison.InvariantCultureIgnoreCase));
+                        var field = allFields.FirstOrDefault(f =>
+                            f.Name.ToLowerInvariant().StartsWith($"<{key}>", StringComparison.InvariantCultureIgnoreCase));
 
                         if (field is null)
                         {
@@ -233,6 +235,25 @@ namespace HoneyComb.WebApi
 
             //var serializer = response.HttpContext.RequestServices.GetRequiredService<IJsonSerializer>();
             //await serializer.SerializeAsync(response.Body, value);
+        }
+
+        public static async Task WriteFileAsync(this HttpContext httpContext, Stream fileStream)
+        {
+            var outputStream = httpContext.Response.Body;
+            using (fileStream)
+            {
+                try
+                {
+                    await StreamCopyOperation.CopyToAsync(fileStream, outputStream, count: null, cancel: httpContext.RequestAborted);
+
+                }
+                catch (OperationCanceledException)
+                {
+                    // Don't throw this exception, it's most likely caused by the client disconnecting.
+                    // However, if it was cancelled for any other reason we need to prevent empty responses.
+                    httpContext.Abort();
+                }
+            }
         }
 
         public static Task Ok(this HttpResponse response, object data = null)

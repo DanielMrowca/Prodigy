@@ -34,7 +34,7 @@ namespace HoneyComb.WebApi.CQRS
           Func<T, TResult, HttpContext, Task> afterDispatch = null,
           Action<IEndpointConventionBuilder> endpoint = null,
           bool returnResult = true,
-          bool auth = false, 
+          bool auth = false,
           string roles = null,
           params string[] policies) where T : class, ICommand<TResult>;
 

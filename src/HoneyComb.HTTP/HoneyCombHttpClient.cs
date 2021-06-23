@@ -1,5 +1,6 @@
 ﻿using HoneyComb.HTTP.Exceptions;
 using HoneyComb.Models;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Polly;
@@ -14,10 +15,18 @@ using System.Threading.Tasks;
 
 namespace HoneyComb.HTTP
 {
-    public class HoneyCombHttpClient : IHttpClient
+    public class HoneyCombHttpClient : IHttpClient, IDisposable
     {
         private const string ApplicationJsonContentType = "application/json";
         private static readonly StringContent EmptyJson = new StringContent("{}", Encoding.UTF8, ApplicationJsonContentType);
+
+        private bool _disposed;
+
+        private HttpContent _httpContent;
+        private StreamContent _streamContent;
+        private ByteArrayContent _byteArrayContent;
+
+
 
         private readonly JsonSerializerSettings _jsonSerializerSettings;
         protected readonly HttpClient _httpClient;
@@ -243,20 +252,20 @@ namespace HoneyComb.HTTP
             return new HttpResult<T>(result, response);
         }
 
-        protected virtual Task<HttpResponseMessage> GetResponseAsync(string uri, Method method, object data = null, CompressionMethod? compression = null)
+        protected virtual async Task<HttpResponseMessage> GetResponseAsync(string uri, Method method, object data = null, CompressionMethod? compression = null)
         {
             switch (method)
             {
                 case Method.Get:
-                    return _httpClient.GetAsync(uri);
+                    return await _httpClient.GetAsync(uri);
                 case Method.Post:
-                    return _httpClient.PostAsync(uri, GetJsonData(data, compression));
+                    return await _httpClient.PostAsync(uri, await GetHttpContentAsync(data, compression));
                 case Method.Put:
-                    return _httpClient.PutAsync(uri, GetJsonData(data, compression));
+                    return await _httpClient.PutAsync(uri, await GetHttpContentAsync(data, compression));
                 case Method.Patch:
-                    return _httpClient.PatchAsync(uri, GetJsonData(data, compression));
+                    return await _httpClient.PatchAsync(uri, await GetHttpContentAsync(data, compression));
                 case Method.Delete:
-                    return _httpClient.DeleteAsync(uri);
+                    return await _httpClient.DeleteAsync(uri);
                 default:
                     throw new InvalidOperationException($"Http method: {method} is not supported");
             }
@@ -293,17 +302,41 @@ namespace HoneyComb.HTTP
             return Task.CompletedTask;
         }
 
+        protected async Task<HttpContent> GetHttpContentAsync(object data, CompressionMethod? compression = null)
+        {
+            if (data is IFormFile formFile)
+                _httpContent = await GetMultipartFormDataContentAsync(formFile, compression);
+            else
+                _httpContent = GetJsonData(data, compression);
+
+            if (compression is null)
+                return _httpContent;
+
+            _httpContent = new CompressedHttpContent(_httpContent, compression.Value);
+            return _httpContent;
+
+        }
+
+        protected async Task<HttpContent> GetMultipartFormDataContentAsync(IFormFile formFile, CompressionMethod? compression = null)
+        {
+            if (formFile is null)
+                return new MultipartFormDataContent(); ;
+
+            MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
+            _streamContent = new StreamContent(formFile.OpenReadStream());
+            _byteArrayContent = new ByteArrayContent(await _streamContent.ReadAsByteArrayAsync());
+            multipartFormDataContent.Add(_byteArrayContent, formFile.Name, formFile.FileName);
+
+            return multipartFormDataContent;
+        }
+
         protected HttpContent GetJsonData(object data, CompressionMethod? compression = null)
         {
             if (data is null)
                 return EmptyJson;
 
             var json = JsonConvert.SerializeObject(data, _jsonSerializerSettings);
-            var stringContent = new StringContent(json, Encoding.UTF8, ApplicationJsonContentType);
-            if (compression is null)
-                return stringContent;
-
-            return new CompressedHttpContent(stringContent, compression.Value);
+            return new StringContent(json, Encoding.UTF8, ApplicationJsonContentType);
         }
 
         private CompressionMethod? GetCompressionMethod(CompressionMethod? requestCompression)
@@ -316,6 +349,27 @@ namespace HoneyComb.HTTP
             }
 
             return requestCompression;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                _httpContent?.Dispose();
+                _streamContent?.Dispose();
+                _byteArrayContent?.Dispose();
+            }
+
+            _disposed = true;
         }
 
         protected enum Method

@@ -1,5 +1,6 @@
 ﻿using HoneyComb.WebApi.Dispatcher.Builders;
 using HoneyComb.WebApi.Dispatcher.Dispatchers;
+using HoneyComb.WebApi.ModelBinding;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -36,7 +37,7 @@ namespace HoneyComb.WebApi.Dispatcher
                 app.UseAuthorization();
 
             middleware?.Invoke(app);
-            app.UseEndpoints(router => builder?.Invoke(new EndpointDispatcherBuilder(new EndpointBuilder(router))));
+            app.UseEndpoints(router => builder?.Invoke(new EndpointDispatcherBuilder(new EndpointBuilder(router, new DefaultModelBinderProvider()))));
 
             return app;
         }

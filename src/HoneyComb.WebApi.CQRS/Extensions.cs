@@ -1,4 +1,6 @@
-﻿using HoneyComb.WebApi.CQRS.Builders;
+﻿using HoneyComb.WebApi.ContentResults;
+using HoneyComb.WebApi.CQRS.Builders;
+using HoneyComb.WebApi.ModelBinding;
 using Microsoft.AspNetCore.Builder;
 using System;
 using System.Collections.Generic;
@@ -18,7 +20,7 @@ namespace HoneyComb.WebApi.CQRS
                 app.UseAuthorization();
 
             middleware?.Invoke(app);
-            app.UseEndpoints(router => builder?.Invoke(new EndpointDispatcherBuilder(new EndpointBuilder(router))));
+            app.UseEndpoints(router => builder?.Invoke(new EndpointDispatcherBuilder(new EndpointBuilder(router, new DefaultModelBinderProvider()), new DefaultHttpResponseContentResultProvider())));
 
             return app;
         }
