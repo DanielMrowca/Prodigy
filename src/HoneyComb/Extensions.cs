@@ -87,6 +87,16 @@ namespace HoneyComb
             return model;
         }
 
+        public static IHoneyCombBuilder AddRange(this IHoneyCombBuilder builder, IServiceCollection services)
+        {
+            foreach (var service in services)
+            {
+                builder.Services.Add(service);
+            }
+
+            return builder;
+        }
+
         private static void DisplayBanner(AppSettings appSettings)
         {
             var textToDisplay = string.IsNullOrWhiteSpace(appSettings.Title) ? appSettings.Name : appSettings.Title;

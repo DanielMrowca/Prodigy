@@ -2,15 +2,30 @@
 using HoneyComb.CQRS.Queries.Dispatchers;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace HoneyComb.CQRS.Queries
 {
     public static class Extensions
     {
-        public static IHoneyCombBuilder AddQueryHandlers(this IHoneyCombBuilder builder)
+        /// <summary>
+        ///     Register all Query Handlers defined in specified assemblies. 
+        /// </summary>
+        /// <param name="builder">HoneComb builder</param>
+        /// <param name="assemblies">Assemblies context. If assemblies are null then getting all assemblies from the execution context</param>
+        /// <param name="queryHandlersFactoryScope">Additional registrations only in this query handlers scope. Dedicated for decorators registration</param>
+        /// <returns><see cref="IHoneyCombBuilder"/></returns>
+        public static IHoneyCombBuilder AddQueryHandlers(
+            this IHoneyCombBuilder builder,
+            Assembly[] assemblies = null,
+            Action<IServiceCollection> queryHandlersFactoryScope = null)
         {
-            builder.Services.Scan(s =>
-                s.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
+            assemblies ??= AppDomain.CurrentDomain.GetAssemblies();
+            var services = new ServiceCollection();
+
+            services.Scan(s =>
+                s.FromAssemblies(assemblies)
                 .AddClasses(c =>
                 {
                     c.AssignableTo(typeof(IQueryHandler<,>));
@@ -27,11 +42,17 @@ namespace HoneyComb.CQRS.Queries
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
 
+            queryHandlersFactoryScope?.Invoke(services);
+            builder.AddRange(services);
+
             return builder;
         }
 
         public static IHoneyCombBuilder AddQueryDispatcher(this IHoneyCombBuilder builder)
         {
+            if (builder.Services.Any(x => x.ServiceType == typeof(IQueryDispatcher)))
+                return builder;
+
             builder.Services.AddSingleton<IQueryDispatcher, QueryDispatcher>();
             return builder;
         }

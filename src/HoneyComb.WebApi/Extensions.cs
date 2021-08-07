@@ -91,12 +91,12 @@ namespace HoneyComb.WebApi
             return appBuilder;
         }
 
-        public static IJsonSerializer GetDefaultJsonSerializer()
+        public static IJsonSerializer GetDefaultJsonSerializer(bool camelCaseText = true)
         {
             var factory = new Open.Serialization.Json.Newtonsoft.JsonSerializerFactory(new JsonSerializerSettings
             {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                Converters = { new StringEnumConverter(true) }
+                ContractResolver = camelCaseText ? new CamelCasePropertyNamesContractResolver() : new DefaultContractResolver(),
+                Converters = { new StringEnumConverter(camelCaseText) }
             });
             return factory.GetSerializer();
         }
@@ -229,12 +229,13 @@ namespace HoneyComb.WebApi
         public static async Task WriteJsonAsync<T>(this HttpResponse response, T value)
         {
             response.ContentType = JsonContentType;
-            var data = JsonConvert.SerializeObject(value);
-            await response.WriteAsync(data);
+            //var data = JsonConvert.SerializeObject(value);
+            //
             //response.Body = data.GetAsStream();
 
-            //var serializer = response.HttpContext.RequestServices.GetRequiredService<IJsonSerializer>();
-            //await serializer.SerializeAsync(response.Body, value);
+            var serializer = response.HttpContext.RequestServices.GetRequiredService<IJsonSerializer>();
+            var data = serializer.Serialize(value);
+            await response.WriteAsync(data);
         }
 
         public static async Task WriteFileAsync(this HttpContext httpContext, Stream fileStream)
