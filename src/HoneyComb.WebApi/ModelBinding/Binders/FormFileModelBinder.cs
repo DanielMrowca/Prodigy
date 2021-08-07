@@ -22,8 +22,11 @@ namespace HoneyComb.WebApi.ModelBinding.Binders
 
             var form = await request.ReadFormAsync();
             var file = form.Files.FirstOrDefault();
+            if (file is null)
+                return null;
 
-            var model = (T)Activator.CreateInstance(typeof(T), new object[] { file.OpenReadStream(), 0, file.Length, file.Name, file.FileName });
+            var model = (T)Activator.CreateInstance(typeof(T), file.OpenReadStream(), 0, file.Length,
+                file.Name, file.FileName, file.Headers);
             return model;
 
         }
