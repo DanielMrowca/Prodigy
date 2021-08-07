@@ -11,7 +11,7 @@ namespace HoneyComb.WebApi.ModelBinding
         {
             var contentType = httpContext.Request.ContentType;
 
-            if(contentType.Contains(MediaTypeNames.Application.Json, StringComparison.OrdinalIgnoreCase))
+            if (contentType is null || contentType.Contains(MediaTypeNames.Application.Json, StringComparison.OrdinalIgnoreCase))
                 return new JsonModelBinder();
             if(contentType.Contains("multipart/form-data", StringComparison.OrdinalIgnoreCase))
                 return new FormFileModelBinder();

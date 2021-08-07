@@ -11,7 +11,12 @@ namespace HoneyComb.WebApi.ModelBinding.Binders
 
         public override async Task<T> BindModelAsync<T>(HttpContext httpContext) where T : class
         {
-            await base.BindModelAsync<T>(httpContext);
+            var contentType = httpContext.Request.ContentType;
+
+            // Validate content type only when is specified in the request
+            if (!string.IsNullOrWhiteSpace(contentType))
+                await base.BindModelAsync<T>(httpContext);
+
             return await httpContext.ReadJsonAsync<T>();
         }
     }

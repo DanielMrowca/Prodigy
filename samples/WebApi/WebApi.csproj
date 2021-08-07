@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\HoneyComb.CQRS.Commands\HoneyComb.CQRS.Commands.csproj" />
     <ProjectReference Include="..\..\src\HoneyComb.WebApi\HoneyComb.WebApi.csproj" />
     <ProjectReference Include="..\..\src\HoneyComb\HoneyComb.csproj" />
   </ItemGroup>

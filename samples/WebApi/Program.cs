@@ -23,8 +23,10 @@ namespace WebApi
                         .UseEndpoints(endpoints => endpoints
                             .Get("", ctx => ctx.Response.WriteAsync("WebApi app using HoneyComb :)"))
                             .Get<Test>("test/{customText?}",
-                            async (query, ctx) => await ctx.Response.WriteAsync(JsonConvert.SerializeObject(query))))
-                        );
+                                async (query, ctx) => await ctx.Response.WriteAsync(JsonConvert.SerializeObject(query)))
+                            .Post<EmptyCommand>("/test/empty")
+
+                        ));
                 });
     }
 }
