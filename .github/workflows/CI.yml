@@ -22,6 +22,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.x
+        source-url: https://nuget.pkg.github.com/usernamecompanyname/index.json
+      env:
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
         
     - name: Restore dependencies
       run: dotnet restore
@@ -36,7 +39,6 @@ jobs:
       run: dotnet pack
       
     - name: Publish nuget packages
-      if: startsWith(github.ref, 'refs/heads/release')
-      run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
+      run: dotnet nuget push *.nupkg
       
       
