@@ -9,6 +9,7 @@
 	  <Authors>Daniel Mrowca</Authors>
 	  <AssemblyName>HoneyComb.MongoDB</AssemblyName>
 	  <PackageTags>HoneyComb.MongoDB</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/HoneyComb</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

@@ -9,6 +9,7 @@
 	  <Authors>Daniel Mrowca</Authors>
 	  <AssemblyName>HoneyComb.WebApi.CQRS</AssemblyName>
 	  <PackageTags>HoneyComb.WebApi.CQRS</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/HoneyComb</RepositoryUrl>
   </PropertyGroup>
   
 

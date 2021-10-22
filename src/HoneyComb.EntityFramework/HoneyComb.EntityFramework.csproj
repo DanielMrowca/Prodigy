@@ -9,6 +9,7 @@
 	  <Authors>Daniel Mrowca</Authors>
 	  <AssemblyName>HoneyComb.EntityFramework</AssemblyName>
 	  <PackageTags>HoneyComb.EntityFramework</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/HoneyComb</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

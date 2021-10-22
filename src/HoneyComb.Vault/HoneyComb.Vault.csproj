@@ -9,6 +9,7 @@
 	  <Authors>Daniel Mrowca</Authors>
 	  <AssemblyName>HoneyComb.Vault</AssemblyName>
 	  <PackageTags>HoneyComb.Vault</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/HoneyComb</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

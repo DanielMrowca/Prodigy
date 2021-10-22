@@ -9,6 +9,7 @@
 	  <Authors>Daniel Mrowca</Authors>
 	  <AssemblyName>HoneyComb.CQRS.Events</AssemblyName>
 	  <PackageTags>HoneyComb.CQRS.Events</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/HoneyComb</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
