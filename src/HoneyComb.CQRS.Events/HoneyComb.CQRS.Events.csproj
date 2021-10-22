@@ -1,10 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyVersion>0.0.4.69</AssemblyVersion>
-    <FileVersion>0.0.4.69</FileVersion>
-    <Version>0.1.0</Version>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>HoneyComb.CQRS.Events</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>HoneyComb.CQRS.Events</Title>
+	  <Description>HoneyComb.CQRS.Events</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>HoneyComb.CQRS.Events</AssemblyName>
+	  <PackageTags>HoneyComb.CQRS.Events</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

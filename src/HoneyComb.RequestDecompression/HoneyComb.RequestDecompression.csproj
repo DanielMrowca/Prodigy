@@ -1,8 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>HoneyComb.RequestDecompression</PackageId>
 	  <Version>1.0.0</Version>
+	  <Title>HoneyComb.RequestDecompression</Title>
+	  <Description>HoneyComb.RequestDecompression</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>HoneyComb.RequestDecompression</AssemblyName>
+	  <PackageTags>HoneyComb.RequestDecompression</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

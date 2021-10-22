@@ -1,9 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyVersion>1.0.0.60</AssemblyVersion>
-    <FileVersion>1.0.0.60</FileVersion>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>HoneyComb.Figlet</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>HoneyComb.Figlet</Title>
+	  <Description>HoneyComb.Figlet</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>HoneyComb.Figlet</AssemblyName>
+	  <PackageTags>HoneyComb.Figlet</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

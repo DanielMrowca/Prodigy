@@ -1,9 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyVersion>1.0.6.69</AssemblyVersion>
-    <FileVersion>1.0.6.69</FileVersion>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>HoneyComb.CQRS.Commands</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>HoneyComb.CQRS.Commands</Title>
+	  <Description>HoneyComb.CQRS.Commands</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>HoneyComb.CQRS.Commands</AssemblyName>
+	  <PackageTags>HoneyComb.CQRS.Commands</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

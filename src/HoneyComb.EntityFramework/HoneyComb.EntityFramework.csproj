@@ -1,7 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>HoneyComb.EntityFramework</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>HoneyComb.EntityFramework</Title>
+	  <Description>HoneyComb.EntityFramework</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>HoneyComb.EntityFramework</AssemblyName>
+	  <PackageTags>HoneyComb.EntityFramework</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
