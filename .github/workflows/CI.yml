@@ -30,7 +30,7 @@ jobs:
       run: dotnet build $SOLUTION --configuration $BUILD_CONFIG --no-restore
       
     - name: Test
-      run: dotnet test /p:Configuration=$env:BUILD_CONFIG --no-restore --no-build --verbosity normal
+      run: dotnet test --no-restore --no-build --verbosity normal
       
     - name: Create nuget packages
       run: dotnet pack
