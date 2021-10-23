@@ -2,5 +2,6 @@
 
 # Prodigy - .NET Core helpers for quick and easy microservices development
 The project is inspired by: https://github.com/snatch-dev/Convey.  
+nuget.org: https://www.nuget.org/profiles/DanielMrowca
 
 
