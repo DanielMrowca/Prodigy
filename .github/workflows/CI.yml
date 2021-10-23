@@ -35,7 +35,10 @@ jobs:
     - name: Create nuget packages
       run: dotnet pack
       
-    - name: Publish nuget packages
-      run: dotnet nuget push "**/*.nupkg" --api-key ${{secrets.NUGET_API_KEY}} --source https://nuget.pkg.github.com/DanielMrowca/index.json --skip-duplicate
+    - name: Publish Github
+      run: dotnet nuget push "**/*.nupkg" --source https://nuget.pkg.github.com/DanielMrowca/index.json --api-key ${{secrets.NUGET_GITHUB_PAT}}  --skip-duplicate
+      
+    - name: Publish Nuget
+      run: dotnet nuget push "**/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_PAT}} --skip-duplicate
       
       
