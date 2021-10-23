@@ -38,7 +38,7 @@ jobs:
     - name: Publish Github
       run: dotnet nuget push "**/*.nupkg" --source https://nuget.pkg.github.com/DanielMrowca/index.json --api-key ${{secrets.NUGET_GITHUB_PAT}}  --skip-duplicate
       
-    - name: Publish Nuget
-      run: dotnet nuget push "**/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_PAT}} --skip-duplicate
+    # - name: Publish Nuget
+    #  run: dotnet nuget push "**/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_PAT}} --skip-duplicate
       
       
