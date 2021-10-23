@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PackageId>HoneyComb.CQRS.Events</PackageId>
+	  <PackageId>DMrowca.HoneyComb.CQRS.Events</PackageId>
 	  <Version>1.0.0</Version>
 	  <Title>HoneyComb.CQRS.Events</Title>
 	  <Description>HoneyComb.CQRS.Events</Description>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PackageId>HoneyComb.MessageBroker.RabbitMQ</PackageId>
+	  <PackageId>DMrowca.HoneyComb.MessageBroker.RabbitMQ</PackageId>
 	  <Version>1.0.0</Version>
 	  <Title>HoneyComb.MessageBroker.RabbitMQ</Title>
 	  <Description>HoneyComb.MessageBroker.RabbitMQ</Description>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PackageId>HoneyComb.MongoDB</PackageId>
+	  <PackageId>DMrowca.HoneyComb.MongoDB</PackageId>
 	  <Version>1.0.0</Version>
 	  <Title>HoneyComb.MongoDB</Title>
 	  <Description>HoneyComb.MongoDB</Description>

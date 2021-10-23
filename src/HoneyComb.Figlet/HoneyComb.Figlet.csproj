@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PackageId>HoneyComb.Figlet</PackageId>
+	  <PackageId>DMrowca.HoneyComb.Figlet</PackageId>
 	  <Version>1.0.0</Version>
 	  <Title>HoneyComb.Figlet</Title>
 	  <Description>HoneyComb.Figlet</Description>

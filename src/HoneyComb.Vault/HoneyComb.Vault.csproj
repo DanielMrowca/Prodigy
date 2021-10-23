@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PackageId>HoneyComb.Vault</PackageId>
+	  <PackageId>DMrowca.HoneyComb.Vault</PackageId>
 	  <Version>1.0.0</Version>
 	  <Title>HoneyComb.Vault</Title>
 	  <Description>HoneyComb.Vault</Description>

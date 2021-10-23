@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PackageId>HoneyComb.HTTP</PackageId>
+	  <PackageId>DMrowca.HoneyComb.HTTP</PackageId>
 	  <Version>1.0.0</Version>
 	  <Title>HoneyComb.HTTP</Title>
 	  <Description>HoneyComb.HTTP</Description>

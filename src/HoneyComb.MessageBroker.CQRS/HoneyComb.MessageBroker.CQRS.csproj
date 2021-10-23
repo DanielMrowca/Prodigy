@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PackageId>HoneyComb.MessageBroker.CQRS</PackageId>
+	  <PackageId>DMrowca.HoneyComb.MessageBroker.CQRS</PackageId>
 	  <Version>1.0.0</Version>
 	  <Title>HoneyComb.MessageBroker.CQRS</Title>
 	  <Description>HoneyComb.MessageBroker.CQRS</Description>
