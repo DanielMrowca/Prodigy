@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PackageId>DMrowca.HoneyComb.CQRS.Commands</PackageId>
+	  <PackageId>HoneyComb.CQRS.Commands</PackageId>
 	  <Version>1.0.0</Version>
 	  <Title>HoneyComb.CQRS.Commands</Title>
 	  <Description>HoneyComb.CQRS.Commands</Description>

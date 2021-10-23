@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PackageId>DMrowca.HoneyComb.RequestDecompression</PackageId>
+	  <PackageId>HoneyComb.RequestDecompression</PackageId>
 	  <Version>1.0.0</Version>
 	  <Title>HoneyComb.RequestDecompression</Title>
 	  <Description>HoneyComb.RequestDecompression</Description>

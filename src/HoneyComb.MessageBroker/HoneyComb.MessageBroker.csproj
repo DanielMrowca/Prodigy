@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PackageId>DMrowca.HoneyComb.MessageBroker</PackageId>
+	  <PackageId>HoneyComb.MessageBroker</PackageId>
 	  <Version>1.0.0</Version>
 	  <Title>HoneyComb.MessageBroker</Title>
 	  <Description>HoneyComb.MessageBroker</Description>
