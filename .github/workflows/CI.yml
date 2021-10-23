@@ -36,9 +36,9 @@ jobs:
       run: dotnet pack
       
     - name: Publish Github
-      run: dotnet nuget push "**/*.nupkg" --source https://nuget.pkg.github.com/DanielMrowca/index.json --api-key ${{secrets.NUGET_API_KEY}}  --skip-duplicate
+      run: dotnet nuget push "**/*.nupkg" --source https://nuget.pkg.github.com/DanielMrowca/index.json --api-key ${{secrets.GITHUB_PAT}}  --skip-duplicate
       
-    - name: PushNuget
-      run: dotnet nuget push "**/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{secrets.PUBLISH_TO_NUGET_ORG}} --skip-duplicate
+    - name: Publish Nuget
+      run: dotnet nuget push "**/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_PAT}} --skip-duplicate
       
       
