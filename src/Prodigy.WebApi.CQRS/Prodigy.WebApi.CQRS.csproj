@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>Prodigy.WebApi.CQRS</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>Prodigy.WebApi.CQRS</Title>
+	  <Description>Prodigy.WebApi.CQRS</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>Prodigy.WebApi.CQRS</AssemblyName>
+	  <PackageTags>Prodigy.WebApi.CQRS</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/Prodigy</RepositoryUrl>
+	  <RootNamespace>Prodigy.WebApi.CQRS</RootNamespace>
+  </PropertyGroup>
+  
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prodigy.CQRS.Commands\Prodigy.CQRS.Commands.csproj" />
+    <ProjectReference Include="..\Prodigy.CQRS.Queries\Prodigy.CQRS.Queries.csproj" />
+    <ProjectReference Include="..\Prodigy.WebApi\Prodigy.WebApi.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>Prodigy.EntityFramework</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>Prodigy.EntityFramework</Title>
+	  <Description>Prodigy.EntityFramework</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>Prodigy.EntityFramework</AssemblyName>
+	  <PackageTags>Prodigy.EntityFramework</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/Prodigy</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prodigy.Repositories\Prodigy.Repositories.csproj" />
+    <ProjectReference Include="..\Prodigy\Prodigy.csproj" />
+  </ItemGroup>
+
+</Project>

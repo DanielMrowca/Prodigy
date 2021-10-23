@@ -14,9 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\HoneyComb.CQRS.Commands\HoneyComb.CQRS.Commands.csproj" />
-    <ProjectReference Include="..\..\src\HoneyComb.WebApi\HoneyComb.WebApi.csproj" />
-    <ProjectReference Include="..\..\src\HoneyComb\HoneyComb.csproj" />
+    <ProjectReference Include="..\..\src\Prodigy.CQRS.Commands\Prodigy.CQRS.Commands.csproj" />
+    <ProjectReference Include="..\..\src\Prodigy.WebApi\Prodigy.WebApi.csproj" />
+    <ProjectReference Include="..\..\src\Prodigy\Prodigy.csproj" />
   </ItemGroup>
 
 </Project>

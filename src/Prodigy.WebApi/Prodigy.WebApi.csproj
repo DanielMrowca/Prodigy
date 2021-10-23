@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>Prodigy.WebApi</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>Prodigy.WebApi</Title>
+	  <Description>Prodigy.WebApi</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>Prodigy.WebApi</AssemblyName>
+	  <PackageTags>Prodigy.WebApi</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/Prodigy</RepositoryUrl>
+	  <RootNamespace>Prodigy.WebApi</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Open.Serialization.Json.Newtonsoft" Version="2.2.5" />
+    <PackageReference Include="Open.Serialization.Json.System" Version="2.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prodigy\Prodigy.csproj" />
+  </ItemGroup>
+
+</Project>

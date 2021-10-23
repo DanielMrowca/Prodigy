@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>Prodigy.WebApi.Dispatcher</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>Prodigy.WebApi.Dispatcher</Title>
+	  <Description>Prodigy.WebApi.Dispatcher</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>Prodigy.WebApi.Dispatcher</AssemblyName>
+	  <PackageTags>Prodigy.WebApi.Dispatcher</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/Prodigy</RepositoryUrl>
+	  <RootNamespace>Prodigy.WebApi.Dispatcher</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prodigy.WebApi\Prodigy.WebApi.csproj" />
+    <ProjectReference Include="..\Prodigy\Prodigy.csproj" />
+  </ItemGroup>
+
+</Project>

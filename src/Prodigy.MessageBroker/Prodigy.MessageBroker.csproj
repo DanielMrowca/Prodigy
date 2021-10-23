@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>Prodigy.MessageBroker</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>Prodigy.MessageBroker</Title>
+	  <Description>Prodigy.MessageBroker</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>Prodigy.MessageBroker</AssemblyName>
+	  <PackageTags>Prodigy.MessageBroker</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/Prodigy</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>

@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using HoneyComb.CQRS.Commands;
+using Prodigy.CQRS.Commands;
 
 namespace WebApi.Commands.Handlers
 {

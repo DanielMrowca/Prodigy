@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using HoneyComb;
-using HoneyComb.WebApi;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Prodigy;
+using Prodigy.WebApi;
 
 namespace WebApi
 {
@@ -17,11 +17,11 @@ namespace WebApi
             Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.ConfigureServices(services => services
-                        .AddHoneyComb()
+                        .AddProdigy()
                         .AddWebApi())
                     .Configure(app => app
                         .UseEndpoints(endpoints => endpoints
-                            .Get("", ctx => ctx.Response.WriteAsync("WebApi app using HoneyComb :)"))
+                            .Get("", ctx => ctx.Response.WriteAsync("WebApi app using Prodigy :)"))
                             .Get<Test>("test/{customText?}",
                                 async (query, ctx) => await ctx.Response.WriteAsync(JsonConvert.SerializeObject(query)))
                             .Post<EmptyCommand>("/test/empty")

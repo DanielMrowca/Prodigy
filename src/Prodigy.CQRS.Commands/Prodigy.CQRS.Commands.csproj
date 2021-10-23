@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>Prodigy.CQRS.Commands</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>Prodigy.CQRS.Commands</Title>
+	  <Description>Prodigy.CQRS.Commands</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>Prodigy.CQRS.Commands</AssemblyName>
+	  <PackageTags>Prodigy.CQRS.Commands</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/Prodigy</RepositoryUrl>
+	  <RootNamespace>Prodigy.CQRS.Commands</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prodigy\Prodigy.csproj" />
+  </ItemGroup>
+
+</Project>

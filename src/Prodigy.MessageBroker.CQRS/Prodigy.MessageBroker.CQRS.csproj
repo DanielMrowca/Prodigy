@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>Prodigy.MessageBroker.CQRS</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>Prodigy.MessageBroker.CQRS</Title>
+	  <Description>Prodigy.MessageBroker.CQRS</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>Prodigy.MessageBroker.CQRS</AssemblyName>
+	  <PackageTags>Prodigy.MessageBroker.CQRS</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/Prodigy</RepositoryUrl>
+	  <RootNamespace>Prodigy.MessageBroker.CQRS</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prodigy.CQRS.Commands\Prodigy.CQRS.Commands.csproj" />
+    <ProjectReference Include="..\Prodigy.CQRS.Events\Prodigy.CQRS.Events.csproj" />
+    <ProjectReference Include="..\Prodigy.MessageBroker\Prodigy.MessageBroker.csproj" />
+  </ItemGroup>
+
+</Project>

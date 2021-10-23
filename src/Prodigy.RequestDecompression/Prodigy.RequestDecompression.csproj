@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>Prodigy.RequestDecompression</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>Prodigy.RequestDecompression</Title>
+	  <Description>Prodigy.RequestDecompression</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>Prodigy.RequestDecompression</AssemblyName>
+	  <PackageTags>Prodigy.RequestDecompression</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/Prodigy</RepositoryUrl>
+	  <RootNamespace>Prodigy.RequestDecompression</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prodigy\Prodigy.csproj" />
+  </ItemGroup>
+
+</Project>

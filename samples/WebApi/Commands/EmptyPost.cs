@@ -1,4 +1,4 @@
-﻿using HoneyComb.CQRS.Commands;
+﻿using Prodigy.CQRS.Commands;
 
 namespace WebApi
 {

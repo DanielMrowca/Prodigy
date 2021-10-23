@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <PackageId>Prodigy</PackageId>
+	  <Version>1.0.0</Version>
+	  <Title>Prodigy</Title>
+	  <Description>Prodigy</Description>
+	  <Authors>Daniel Mrowca</Authors>
+	  <AssemblyName>Prodigy</AssemblyName>
+	  <PackageTags>Prodigy</PackageTags>
+	  <RepositoryUrl>https://github.com/DanielMrowca/Prodigy</RepositoryUrl>
+	  <RootNamespace>Prodigy</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Scrutor" Version="3.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prodigy.Figlet\Prodigy.Figlet.csproj" />
+  </ItemGroup>
+
+</Project>
